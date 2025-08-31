@@ -1,0 +1,27 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" style="margin: 0; padding: 0;">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{{PROMO_TITLE}} - {{APP_NAME}}</title>
+    <style type="text/css">
+        body { font-family: Arial, Helvetica, sans-serif; color: #1a1a1a; }
+        .container { max-width:600px;margin:0 auto;padding:24px; }
+        .btn { display:inline-block;padding:10px 16px;background:#0ea5e9;color:#fff;text-decoration:none;border-radius:6px; }
+        .muted { color:#6b7280;font-size:12px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 style="margin:0 0 12px 0;font-size:22px;">{{PROMO_TITLE}}</h1>
+        <p>Hello {{USER_NAME}},</p>
+        <p>{{PROMO_DESCRIPTION}}</p>
+        <p style="margin-top:16px;">
+            <a href="{{CTA_LINK}}" class="btn">Learn more</a>
+        </p>
+        <p class="muted" style="margin-top:12px;">Offer valid until {{EXPIRATION_DATE}}</p>
+        <hr style="margin:24px 0;border:none;border-top:1px solid #e5e7eb;" />
+        <p class="muted">© {{CURRENT_YEAR}} {{APP_NAME}}</p>
+    </div>
+</body>
+</html>

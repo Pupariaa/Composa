@@ -1,0 +1,61 @@
+{
+  "name": "composa",
+  "version": "1.0.0",
+  "description": "🎨 Compose beautiful multilingual emails with XHTML templates and Nodemailer",
+  "type": "module",
+  "main": "src/index.js",
+  "exports": {
+    ".": "./src/index.js",
+    "./templates": "./templates/"
+  },
+  "scripts": {
+    "test": "node test.js",
+    "test-real": "node test-real.js",
+    "example": "node examples/basic-usage.js",
+    "example-advanced": "node examples/advanced-usage.js",
+    "prepare": "npm test"
+  },
+  "files": [
+    "src/",
+    "templates/",
+    "examples/",
+    "README.md",
+    "LICENSE",
+    "CHANGELOG.md",
+    ".env.example"
+  ],
+  "keywords": [
+    "email",
+    "mailer",
+    "templates",
+    "nodemailer",
+    "xhtml",
+    "multilingual",
+    "i18n",
+    "smtp",
+    "transactional-emails"
+  ],
+  "author": {
+    "name": "Puparia",
+    "email": "puparia@example.com",
+    "url": "https://github.com/puparia"
+  },
+  "license": "MIT",
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "dependencies": {
+    "nodemailer": "^6.9.0"
+  },
+  "peerDependencies": {
+    "nodemailer": "^6.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/puparia/composa.git"
+  },
+  "homepage": "https://github.com/puparia/composa#readme",
+  "bugs": {
+    "url": "https://github.com/puparia/composa/issues"
+  }
+}

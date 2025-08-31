@@ -1,0 +1,24 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="fr" style="margin: 0; padding: 0;">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Maintenance programmée - {{APP_NAME}}</title>
+    <style type="text/css">
+        body { font-family: Arial, Helvetica, sans-serif; color: #1a1a1a; }
+        .container { max-width:600px;margin:0 auto;padding:24px; }
+        .muted { color:#6b7280;font-size:12px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 style="margin:0 0 12px 0;font-size:22px;">Maintenance programmée</h1>
+        <p>Bonjour {{USER_NAME}},</p>
+        <p>Nous effectuerons une maintenance le {{MAINTENANCE_DATE}} de {{START_TIME}} à {{END_TIME}}.</p>
+        <p>Services impactés : {{AFFECTED_SERVICES}}</p>
+        <p>Pour suivre l’évolution, consultez la page de statut : <a href="{{STATUS_PAGE}}">{{STATUS_PAGE}}</a></p>
+        <hr style="margin:24px 0;border:none;border-top:1px solid #e5e7eb;" />
+        <p class="muted">© {{CURRENT_YEAR}} {{APP_NAME}}</p>
+    </div>
+</body>
+</html>
