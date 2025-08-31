@@ -1,6 +1,6 @@
 {
   "name": "composa",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Compose beautiful multilingual emails with XHTML templates and Nodemailer",
   "type": "module",
   "main": "src/index.js",
