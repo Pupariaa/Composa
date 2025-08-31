@@ -1,0 +1,23 @@
+# Development files
+test.js
+.env*
+
+
+# Dependencies
+node_modules/
+
+# Git
+.git/
+.gitignore
+
+# Logs
+*.log
+npm-debug.log*
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE files
+.vscode/
+.idea/
