@@ -1,7 +1,7 @@
 {
   "name": "composa",
   "version": "1.0.0",
-  "description": "🎨 Compose beautiful multilingual emails with XHTML templates and Nodemailer",
+  "description": "Compose beautiful multilingual emails with XHTML templates and Nodemailer",
   "type": "module",
   "main": "src/index.js",
   "exports": {
@@ -9,11 +9,8 @@
     "./templates": "./templates/"
   },
   "scripts": {
-    "test": "node test.js",
-    "test-real": "node test-real.js",
     "example": "node examples/basic-usage.js",
-    "example-advanced": "node examples/advanced-usage.js",
-    "prepare": "npm test"
+    "example-advanced": "node examples/advanced-usage.js"
   },
   "files": [
     "src/",
@@ -26,19 +23,76 @@
   ],
   "keywords": [
     "email",
-    "mailer",
-    "templates",
-    "nodemailer",
+    "emails",
+    "email-sender",
+    "email-client",
+    "email-service",
+    "email-templates",
+    "email-template",
+    "html-email",
     "xhtml",
-    "multilingual",
-    "i18n",
+    "responsive-email",
+    "transactional",
+    "transactional-email",
+    "transactional-emails",
+    "newsletter",
+    "newsletters",
+    "marketing-email",
+    "bulk-email",
     "smtp",
-    "transactional-emails"
+    "smtp-client",
+    "smtp-email",
+    "nodemailer",
+    "nodemailer-templates",
+    "template",
+    "templates",
+    "template-engine",
+    "templating",
+    "variables",
+    "interpolation",
+    "i18n",
+    "l10n",
+    "multilingual",
+    "multi-language",
+    "internationalization",
+    "localization",
+    "providers",
+    "email-providers",
+    "gmail",
+    "outlook",
+    "hotmail",
+    "yahoo",
+    "sendgrid",
+    "mailgun",
+    "ses",
+    "aws-ses",
+    "postmark",
+    "mailjet",
+    "sparkpost",
+    "brevo",
+    "sendinblue",
+    "mailtrap",
+    "ethereal",
+    "dkim",
+    "esm",
+    "es-modules",
+    "module",
+    "node",
+    "nodejs",
+    "javascript",
+    "password-reset",
+    "account-activation",
+    "security-alert",
+    "welcome-email",
+    "subscription-confirmation",
+    "newsletter-promotion",
+    "maintenance",
+    "scheduled-maintenance"
   ],
   "author": {
-    "name": "Puparia",
-    "email": "puparia@example.com",
-    "url": "https://github.com/puparia"
+    "name": "Maxime zorloni",
+    "email": "maxime.zorloni@outlook.fr",
+    "url": "https://github.com/Pupariaa"
   },
   "license": "MIT",
   "engines": {
@@ -52,10 +106,10 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/puparia/composa.git"
+    "url": "git+https://github.com/Pupariaa/Composa.git"
   },
-  "homepage": "https://github.com/puparia/composa#readme",
+  "homepage": "https://github.com/Pupariaa/Composa#readme",
   "bugs": {
-    "url": "https://github.com/puparia/composa/issues"
+    "url": "https://github.com/Pupariaa/Composa/issues"
   }
 }
