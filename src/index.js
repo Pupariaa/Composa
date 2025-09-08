@@ -1,5 +1,4 @@
 export { default as EmailClient } from "./email-client.js";
-export { default as TemplateEngine } from "./template-engine.js";
 export { default as defaultSubjects } from "./default-subjects.js";
 export { 
   emailProviders,
