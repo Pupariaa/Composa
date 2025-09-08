@@ -29,7 +29,7 @@ export default class EmailClient {
         this.cache = new Map();
         this.memoryTemplates = new Map();
 
-        this.transporter = options.transporter 
+        this.transporter = options.transporter
             || nodemailer.createTransport(options.transport || EmailClient.transportFromEnv());
     }
 
@@ -128,7 +128,7 @@ export default class EmailClient {
     }
 
     async verifyConnection() {
-        try { await this.transporter.verify(); return true; } 
+        try { await this.transporter.verify(); return true; }
         catch { return false; }
     }
 
@@ -148,46 +148,192 @@ export default class EmailClient {
 
     // --- Template Engine ---
     registerTemplateString(templateName, templateString, lang = this.defaultLang) {
+        if (!templateName || typeof templateName !== 'string') {
+            throw new Error('Template name must be a non-empty string');
+        }
+        if (!templateString || typeof templateString !== 'string') {
+            throw new Error('Template string must be a non-empty string');
+        }
         this.memoryTemplates.set(`${lang}/${templateName}`, templateString);
+        // Clear cache for this template to force reload
+        this.cache.delete(`${lang}/${templateName}`);
     }
 
-    clearCache() { this.cache.clear(); }
+    clearCache() {
+        this.cache.clear();
+    }
+
+    clearTemplateCache(templateName, lang = this.defaultLang) {
+        this.cache.delete(`${lang}/${templateName}`);
+    }
 
     #readTemplateFromDiskSync(templateName, lang) {
+        // Validate template name to prevent path traversal
+        if (!templateName || typeof templateName !== 'string' || templateName.includes('..') || templateName.includes('/')) {
+            throw new Error(`Invalid template name: "${templateName}". Template names must be safe strings without path traversal.`);
+        }
+
         const filePath = path.join(this.templatesPath, lang, `${templateName}.xhtml`);
-        if (!fs.existsSync(filePath)) throw new Error(`Template file missing: ${filePath}`);
+        if (!fs.existsSync(filePath)) {
+            throw new Error(`Template file missing: ${filePath}. Available languages: ${this.#getAvailableLanguages().join(', ')}`);
+        }
         return fs.readFileSync(filePath, "utf8");
     }
 
-    #loadTemplate(templateName, lang = this.defaultLang) {
-        const key = `${lang}/${templateName}`;
-        if (this.memoryTemplates.has(key)) return this.memoryTemplates.get(key);
-        if (this.cache.has(key)) return this.cache.get(key);
+    #getAvailableLanguages() {
         try {
-            const tpl = this.#readTemplateFromDiskSync(templateName, lang);
-            this.cache.set(key, tpl);
-            return tpl;
-        } catch (err) {
-            throw new Error(`Template "${templateName}" not found for language "${lang}"`);
+            return fs.readdirSync(this.templatesPath, { withFileTypes: true })
+                .filter(dirent => dirent.isDirectory())
+                .map(dirent => dirent.name);
+        } catch {
+            return [];
         }
+    }
+
+    #loadTemplate(templateName, lang = this.defaultLang) {
+        // Try language candidates with fallbacks (retro-compatibility)
+        const candidates = this.#getLangCandidates(lang);
+
+        for (const candidate of candidates) {
+            const key = `${candidate}/${templateName}`;
+            if (this.memoryTemplates.has(key)) return this.memoryTemplates.get(key);
+            if (this.cache.has(key)) return this.cache.get(key);
+
+            try {
+                const tpl = this.#readTemplateFromDiskSync(templateName, candidate);
+                this.cache.set(key, tpl);
+                return tpl;
+            } catch (err) {
+                // Try next candidate
+            }
+        }
+
+        // Final attempt: try defaultLang candidates
+        const fallbacks = this.#getLangCandidates(this.defaultLang);
+        for (const candidate of fallbacks) {
+            const key = `${candidate}/${templateName}`;
+            if (this.memoryTemplates.has(key)) return this.memoryTemplates.get(key);
+            if (this.cache.has(key)) return this.cache.get(key);
+            try {
+                const tpl = this.#readTemplateFromDiskSync(templateName, candidate);
+                this.cache.set(key, tpl);
+                return tpl;
+            } catch (err) { }
+        }
+
+        throw new Error(`Template "${templateName}" not found for language "${lang}"`);
+    }
+
+    #getLangCandidates(lang) {
+        const normalized = (lang || this.defaultLang).toLowerCase();
+        const list = [normalized];
+        // Add common variants as fallbacks (retro-compatibility)
+        if (normalized === "en") list.push("en-EN", "en-US");
+        if (normalized === "fr") list.push("fr-FR");
+        return list;
     }
 
     #replaceVariables(template, variables = {}) {
         const data = { ...this.defaults, ...variables };
         const missing = [];
-        const result = template.replace(/{{(.*?)}}/g, (_, key) => {
+        const used = new Set();
+
+        // More efficient regex with word boundaries and better escaping
+        const result = template.replace(/\{\{([a-zA-Z_][a-zA-Z0-9_]*)\}\}/g, (match, key) => {
+            used.add(key);
             if (data[key] == null) {
                 missing.push(key);
                 return "";
             }
-            return data[key];
+            // Escape HTML in variables to prevent XSS
+            return String(data[key]).replace(/[&<>"']/g, (char) => {
+                const escapeMap = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' };
+                return escapeMap[char];
+            });
         });
-        if (missing.length) console.warn(`Warning: missing variables in template: ${missing.join(", ")}`);
+
+        if (missing.length) {
+            const warning = `Warning: missing variables in template: ${missing.join(", ")}`;
+            if (this.options?.strictMode) {
+                throw new Error(warning);
+            } else {
+                console.warn(warning);
+            }
+        }
+
         return result;
     }
 
     compileTemplate(templateName, { lang = this.defaultLang, variables = {} } = {}) {
         const tpl = this.#loadTemplate(templateName, lang);
         return this.#replaceVariables(tpl, variables);
+    }
+
+    // --- Retro-compatibility methods ---
+
+    /**
+     * Render a template (retro-compatibility with old API)
+     * @deprecated Use compileTemplate instead
+     */
+    async render(templateName, variables = {}, lang = this.defaultLang) {
+        return this.compileTemplate(templateName, { lang, variables });
+    }
+
+    /**
+     * Send a template by id and language (retro-compatibility with old API)
+     * @deprecated Use compileMail + sendMail instead
+     */
+    async sendTemplate(opts) {
+        const {
+            to,
+            template,
+            variables = {},
+            lang = this.defaultLang,
+            subject = this.getSubject(template, { lang, variables }),
+            from,
+            cc,
+            bcc,
+            replyTo,
+            attachments,
+        } = opts;
+
+        const html = await this.render(template, variables, lang);
+        return this.send({ to, subject, html, from, cc, bcc, replyTo, attachments });
+    }
+
+    // Utility methods for template management
+    listAvailableTemplates(lang = this.defaultLang) {
+        try {
+            const langPath = path.join(this.templatesPath, lang);
+            if (!fs.existsSync(langPath)) return [];
+
+            return fs.readdirSync(langPath)
+                .filter(file => file.endsWith('.xhtml'))
+                .map(file => file.replace('.xhtml', ''));
+        } catch {
+            return [];
+        }
+    }
+
+    templateExists(templateName, lang = this.defaultLang) {
+        const key = `${lang}/${templateName}`;
+        return this.memoryTemplates.has(key) ||
+            fs.existsSync(path.join(this.templatesPath, lang, `${templateName}.xhtml`));
+    }
+
+    getTemplateInfo(templateName, lang = this.defaultLang) {
+        const key = `${lang}/${templateName}`;
+        const isInMemory = this.memoryTemplates.has(key);
+        const isCached = this.cache.has(key);
+        const existsOnDisk = fs.existsSync(path.join(this.templatesPath, lang, `${templateName}.xhtml`));
+
+        return {
+            name: templateName,
+            lang,
+            exists: isInMemory || existsOnDisk,
+            source: isInMemory ? 'memory' : existsOnDisk ? 'disk' : 'none',
+            cached: isCached,
+            path: existsOnDisk ? path.join(this.templatesPath, lang, `${templateName}.xhtml`) : null
+        };
     }
 }
