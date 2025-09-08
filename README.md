@@ -679,7 +679,8 @@ npm run example
 composa/
 ├── src/
 │   ├── index.js              # Main exports
-│   ├── email-client.js       # EmailClient class (merged with template engine)
+│   ├── email-client.js       # EmailClient class (integrated template engine)
+│   ├── template-engine.js    # Standalone TemplateEngine (retro-compatibility)
 │   ├── email-providers.js    # Email provider configurations
 │   └── default-subjects.js   # Built-in subjects
 ├── templates/
