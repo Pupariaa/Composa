@@ -1,115 +1,119 @@
 {
-  "name": "composa",
-  "version": "1.1.0",
-  "description": "Compose beautiful multilingual emails with XHTML templates and Nodemailer",
-  "type": "module",
-  "main": "src/index.js",
-  "exports": {
-    ".": "./src/index.js",
-    "./templates": "./templates/"
-  },
-  "scripts": {
-    "example": "node examples/basic-usage.js",
-    "example-advanced": "node examples/advanced-usage.js"
-  },
-  "files": [
-    "src/",
-    "templates/",
-    "examples/",
-    "README.md",
-    "LICENSE",
-    "CHANGELOG.md",
-    ".env.example"
-  ],
-  "keywords": [
-    "email",
-    "emails",
-    "email-sender",
-    "email-client",
-    "email-service",
-    "email-templates",
-    "email-template",
-    "html-email",
-    "xhtml",
-    "responsive-email",
-    "transactional",
-    "transactional-email",
-    "transactional-emails",
-    "newsletter",
-    "newsletters",
-    "marketing-email",
-    "bulk-email",
-    "smtp",
-    "smtp-client",
-    "smtp-email",
-    "nodemailer",
-    "nodemailer-templates",
-    "template",
-    "templates",
-    "template-engine",
-    "templating",
-    "variables",
-    "interpolation",
-    "i18n",
-    "l10n",
-    "multilingual",
-    "multi-language",
-    "internationalization",
-    "localization",
-    "providers",
-    "email-providers",
-    "gmail",
-    "outlook",
-    "hotmail",
-    "yahoo",
-    "sendgrid",
-    "mailgun",
-    "ses",
-    "aws-ses",
-    "postmark",
-    "mailjet",
-    "sparkpost",
-    "brevo",
-    "sendinblue",
-    "mailtrap",
-    "ethereal",
-    "dkim",
-    "esm",
-    "es-modules",
-    "module",
-    "node",
-    "nodejs",
-    "javascript",
-    "password-reset",
-    "account-activation",
-    "security-alert",
-    "welcome-email",
-    "subscription-confirmation",
-    "newsletter-promotion",
-    "maintenance",
-    "scheduled-maintenance"
-  ],
-  "author": {
-    "name": "Maxime zorloni",
-    "email": "maxime.zorloni@outlook.fr",
-    "url": "https://github.com/Pupariaa"
-  },
-  "license": "MIT",
-  "engines": {
-    "node": ">=14.0.0"
-  },
-  "dependencies": {
-    "nodemailer": "^6.9.0"
-  },
-  "peerDependencies": {
-    "nodemailer": "^6.0.0"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/Pupariaa/Composa.git"
-  },
-  "homepage": "https://github.com/Pupariaa/Composa#readme",
-  "bugs": {
-    "url": "https://github.com/Pupariaa/Composa/issues"
-  }
+	"name": "composa",
+	"version": "1.1.0",
+	"description": "Compose beautiful multilingual emails with XHTML templates and Nodemailer",
+	"type": "module",
+	"main": "src/index.js",
+	"exports": {
+		".": "./src/index.js",
+		"./templates": "./templates/"
+	},
+	"scripts": {
+		"example": "node examples/basic-usage.js",
+		"example-advanced": "node examples/advanced-usage.js",
+		"format": "prettier --write ."
+	},
+	"files": [
+		"src/",
+		"templates/",
+		"examples/",
+		"README.md",
+		"LICENSE",
+		"CHANGELOG.md",
+		".env.example"
+	],
+	"keywords": [
+		"email",
+		"emails",
+		"email-sender",
+		"email-client",
+		"email-service",
+		"email-templates",
+		"email-template",
+		"html-email",
+		"xhtml",
+		"responsive-email",
+		"transactional",
+		"transactional-email",
+		"transactional-emails",
+		"newsletter",
+		"newsletters",
+		"marketing-email",
+		"bulk-email",
+		"smtp",
+		"smtp-client",
+		"smtp-email",
+		"nodemailer",
+		"nodemailer-templates",
+		"template",
+		"templates",
+		"template-engine",
+		"templating",
+		"variables",
+		"interpolation",
+		"i18n",
+		"l10n",
+		"multilingual",
+		"multi-language",
+		"internationalization",
+		"localization",
+		"providers",
+		"email-providers",
+		"gmail",
+		"outlook",
+		"hotmail",
+		"yahoo",
+		"sendgrid",
+		"mailgun",
+		"ses",
+		"aws-ses",
+		"postmark",
+		"mailjet",
+		"sparkpost",
+		"brevo",
+		"sendinblue",
+		"mailtrap",
+		"ethereal",
+		"dkim",
+		"esm",
+		"es-modules",
+		"module",
+		"node",
+		"nodejs",
+		"javascript",
+		"password-reset",
+		"account-activation",
+		"security-alert",
+		"welcome-email",
+		"subscription-confirmation",
+		"newsletter-promotion",
+		"maintenance",
+		"scheduled-maintenance"
+	],
+	"author": {
+		"name": "Maxime zorloni",
+		"email": "maxime.zorloni@outlook.fr",
+		"url": "https://github.com/Pupariaa"
+	},
+	"license": "MIT",
+	"engines": {
+		"node": ">=14.0.0"
+	},
+	"dependencies": {
+		"nodemailer": "^6.0.0"
+	},
+	"peerDependencies": {
+		"nodemailer": "^6.0.0"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/Pupariaa/Composa.git"
+	},
+	"homepage": "https://github.com/Pupariaa/Composa#readme",
+	"bugs": {
+		"url": "https://github.com/Pupariaa/Composa/issues"
+	},
+	"devDependencies": {
+		"prettier": "^3.6.2"
+	}
 }

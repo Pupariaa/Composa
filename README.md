@@ -11,21 +11,21 @@ Compose beautiful multilingual emails with XHTML templates and Nodemailer integr
 - **Multilingual Support** - Built-in French and English templates
 - **Professional Templates** - Pre-designed XHTML email templates
 - **Easy Configuration** - Simple setup with Nodemailer
-- **Template Engine** - Variable interpolation and conditional rendering  
+- **Template Engine** - Variable interpolation and conditional rendering
 - **Ready-to-use** - Pre-built templates for common use cases
 - **Modern ESM** - ES modules with async/await support
 - **Component-based Flow** - Compose templates like components (compileTemplate → compileMail → sendMail)
 
 ## Available Templates
 
-| Template | French | English | Use Case |
-|----------|--------|---------|----------|
-| `password-reset` | ✅ | ✅ | Password reset emails |
-| `account-creation` | ✅ | ✅ | Welcome new users |
-| `suspicious-login` | ✅ | ✅ | Security alerts |
-| `subscription-confirmation` | ✅ | ✅ | Newsletter subscriptions |
-| `newsletter-promotion` | ✅ | ✅ | Marketing campaigns |
-| `scheduled-maintenance` | ✅ | ✅ | System notifications |
+| Template                    | French | English | Use Case                 |
+| --------------------------- | ------ | ------- | ------------------------ |
+| `password-reset`            | ✅     | ✅      | Password reset emails    |
+| `account-creation`          | ✅     | ✅      | Welcome new users        |
+| `suspicious-login`          | ✅     | ✅      | Security alerts          |
+| `subscription-confirmation` | ✅     | ✅      | Newsletter subscriptions |
+| `newsletter-promotion`      | ✅     | ✅      | Marketing campaigns      |
+| `scheduled-maintenance`     | ✅     | ✅      | System notifications     |
 
 ## Quick Start
 
@@ -38,40 +38,40 @@ npm install composa
 ### Basic Usage
 
 ```javascript
-import { EmailClient, defaultSubjects } from 'composa';
+import { EmailClient, defaultSubjects } from "composa";
 
 const mailer = new EmailClient({
-  defaultLang: 'fr',
-  subjects: defaultSubjects,
-  transport: {
-    host: 'smtp.gmail.com',
-    port: 587,
-    secure: false,
-    auth: {
-      user: 'your-email@gmail.com',
-      pass: 'your-app-password'
-    }
-  }
+	defaultLang: "fr",
+	subjects: defaultSubjects,
+	transport: {
+		host: "smtp.gmail.com",
+		port: 587,
+		secure: false,
+		auth: {
+			user: "your-email@gmail.com",
+			pass: "your-app-password",
+		},
+	},
 });
 
 // New flow: compileMail → sendMail
-const { html, subject } = mailer.compileMail('password-reset', {
-  lang: 'fr',
-  variables: {
-    USER_NAME: 'Jean Dupont',
-    USER_EMAIL: 'user@example.com',
-    RESET_URL: 'https://yourapp.com/reset/token123',
-    EXPIRATION_TIME: '24 heures'
-  }
+const { html, subject } = mailer.compileMail("password-reset", {
+	lang: "fr",
+	variables: {
+		USER_NAME: "Jean Dupont",
+		USER_EMAIL: "user@example.com",
+		RESET_URL: "https://yourapp.com/reset/token123",
+		EXPIRATION_TIME: "24 heures",
+	},
 });
 
 const result = await mailer.sendMail({
-  to: 'user@example.com',
-  html,
-  subject
+	to: "user@example.com",
+	html,
+	subject,
 });
 
-console.log('Email sent:', result);
+console.log("Email sent:", result);
 ```
 
 ## New Component-based Flow
@@ -81,42 +81,44 @@ Composa now uses a component-like approach where you can compose templates step 
 ### **Flow Overview:**
 
 1. **`compileTemplate`** - Compile individual templates (like components)
-2. **`compileMail`** - Combine templates into a complete email (HTML + subject)  
+2. **`compileMail`** - Combine templates into a complete email (HTML + subject)
 3. **`sendMail`** - Send the final composed email
 
 ### **Advanced Example - Template Composition:**
 
 ```javascript
 // Compile individual components
-const headerHtml = mailer.compileTemplate('email-header', {
-  variables: { APP_NAME: 'MyApp', USER_NAME: 'John' }
+const headerHtml = mailer.compileTemplate("email-header", {
+	variables: { APP_NAME: "MyApp", USER_NAME: "John" },
 });
 
-const itemListHtml = items.map(item => 
-  mailer.compileTemplate('list-item', {
-    variables: { NAME: item.name, PRICE: item.price }
-  })
-).join('');
+const itemListHtml = items
+	.map((item) =>
+		mailer.compileTemplate("list-item", {
+			variables: { NAME: item.name, PRICE: item.price },
+		}),
+	)
+	.join("");
 
 // Compose the main email
-const { html, subject } = mailer.compileMail('newsletter', {
-  variables: {
-    HEADER: headerHtml,
-    ITEM_LIST: `<ul>${itemListHtml}</ul>`,
-    FOOTER: mailer.compileTemplate('email-footer', {})
-  }
+const { html, subject } = mailer.compileMail("newsletter", {
+	variables: {
+		HEADER: headerHtml,
+		ITEM_LIST: `<ul>${itemListHtml}</ul>`,
+		FOOTER: mailer.compileTemplate("email-footer", {}),
+	},
 });
 
 // Send the composed email
-await mailer.sendMail({ to: 'user@example.com', html, subject });
+await mailer.sendMail({ to: "user@example.com", html, subject });
 ```
 
 ### **Advanced Template Management Example:**
 
 ```javascript
 // Check available templates before using them
-const availableTemplates = mailer.listAvailableTemplates('fr');
-console.log('Available templates:', availableTemplates);
+const availableTemplates = mailer.listAvailableTemplates("fr");
+console.log("Available templates:", availableTemplates);
 
 // Dynamic template registration
 const userSpecificTemplate = `
@@ -126,19 +128,19 @@ const userSpecificTemplate = `
   </div>
 `;
 
-mailer.registerTemplateString('user-welcome', userSpecificTemplate, 'fr');
+mailer.registerTemplateString("user-welcome", userSpecificTemplate, "fr");
 
 // Use the dynamic template
-const { html, subject } = mailer.compileMail('user-welcome', {
-  variables: {
-    USER_NAME: 'Alice',
-    USER_COLOR: '#ff6b6b'
-  }
+const { html, subject } = mailer.compileMail("user-welcome", {
+	variables: {
+		USER_NAME: "Alice",
+		USER_COLOR: "#ff6b6b",
+	},
 });
 
 // Get template info for debugging
-const info = mailer.getTemplateInfo('user-welcome', 'fr');
-console.log('Template loaded from:', info.source); // 'memory'
+const info = mailer.getTemplateInfo("user-welcome", "fr");
+console.log("Template loaded from:", info.source); // 'memory'
 ```
 
 This approach allows for:
@@ -151,31 +153,33 @@ This approach allows for:
 ## Security & Advanced Features
 
 ### **XSS Protection**
+
 All template variables are automatically HTML-escaped to prevent XSS attacks:
 
 ```javascript
-const { html } = mailer.compileMail('welcome', {
-  variables: {
-    USER_NAME: '<script>alert("hack")</script>', // Automatically escaped
-    MESSAGE: 'Hello & welcome!' // & becomes &amp;
-  }
+const { html } = mailer.compileMail("welcome", {
+	variables: {
+		USER_NAME: '<script>alert("hack")</script>', // Automatically escaped
+		MESSAGE: "Hello & welcome!", // & becomes &amp;
+	},
 });
 // Result: <script> becomes &lt;script&gt;, & becomes &amp;
 ```
 
 ### **Strict Mode**
+
 Enable strict mode to throw errors instead of warnings for missing variables:
 
 ```javascript
 const mailer = new EmailClient({
-  defaultLang: 'fr',
-  subjects: defaultSubjects,
-  options: { strictMode: true } // Throws errors for missing variables
+	defaultLang: "fr",
+	subjects: defaultSubjects,
+	options: { strictMode: true }, // Throws errors for missing variables
 });
 
 // This will throw an error instead of showing a warning
-mailer.compileMail('password-reset', {
-  variables: { USER_NAME: 'John' } // Missing RESET_URL will cause error
+mailer.compileMail("password-reset", {
+	variables: { USER_NAME: "John" }, // Missing RESET_URL will cause error
 });
 ```
 
@@ -185,9 +189,9 @@ Built-in protection against path traversal and invalid template names:
 
 ```javascript
 // These will throw errors:
-mailer.compileTemplate('../etc/passwd'); // Path traversal
-mailer.compileTemplate(''); // Empty name
-mailer.compileTemplate('template with spaces'); // Invalid characters
+mailer.compileTemplate("../etc/passwd"); // Path traversal
+mailer.compileTemplate(""); // Empty name
+mailer.compileTemplate("template with spaces"); // Invalid characters
 ```
 
 ### **Cache Management**
@@ -196,10 +200,10 @@ Intelligent caching system with selective invalidation:
 
 ```javascript
 // Register a new template (automatically clears cache)
-mailer.registerTemplateString('dynamic-template', '<h1>{{TITLE}}</h1>');
+mailer.registerTemplateString("dynamic-template", "<h1>{{TITLE}}</h1>");
 
 // Clear cache for specific template
-mailer.clearTemplateCache('password-reset', 'fr');
+mailer.clearTemplateCache("password-reset", "fr");
 
 // Clear all cache
 mailer.clearCache();
@@ -214,44 +218,48 @@ Composa maintains backward compatibility with the previous API. You can still us
 ```javascript
 // Old way (still works)
 await mailer.sendTemplate({
-  to: 'user@example.com',
-  template: 'password-reset',
-  lang: 'fr',
-  variables: {
-    USER_NAME: 'Jean Dupont',
-    RESET_URL: 'https://yourapp.com/reset/token123'
-  }
+	to: "user@example.com",
+	template: "password-reset",
+	lang: "fr",
+	variables: {
+		USER_NAME: "Jean Dupont",
+		RESET_URL: "https://yourapp.com/reset/token123",
+	},
 });
 
 // Old template rendering
-const html = await mailer.render('password-reset', {
-  USER_NAME: 'Jean Dupont',
-  RESET_URL: 'https://yourapp.com/reset/token123'
-}, 'fr');
+const html = await mailer.render(
+	"password-reset",
+	{
+		USER_NAME: "Jean Dupont",
+		RESET_URL: "https://yourapp.com/reset/token123",
+	},
+	"fr",
+);
 ```
 
 ### **Migration Guide**
 
-| Old Method | New Method | Notes |
-|------------|------------|-------|
-| `sendTemplate()` | `compileMail()` + `sendMail()` | Preferred approach |
-| `render()` | `compileTemplate()` | Synchronous, more efficient |
-| `TemplateEngine` class | Use `EmailClient` methods | Integrated, simpler |
+| Old Method             | New Method                     | Notes                       |
+| ---------------------- | ------------------------------ | --------------------------- |
+| `sendTemplate()`       | `compileMail()` + `sendMail()` | Preferred approach          |
+| `render()`             | `compileTemplate()`            | Synchronous, more efficient |
+| `TemplateEngine` class | Use `EmailClient` methods      | Integrated, simpler         |
 
 ### **TemplateEngine Export**
 
 For advanced use cases, the standalone `TemplateEngine` is still available:
 
 ```javascript
-import { TemplateEngine } from 'composa';
+import { TemplateEngine } from "composa";
 
 const engine = new TemplateEngine({
-  defaultLang: 'fr',
-  templatesPath: './my-templates',
-  defaults: { APP_NAME: 'MyApp' }
+	defaultLang: "fr",
+	templatesPath: "./my-templates",
+	defaults: { APP_NAME: "MyApp" },
 });
 
-const html = engine.render('welcome', { USER_NAME: 'John' });
+const html = engine.render("welcome", { USER_NAME: "John" });
 ```
 
 ## API Reference
@@ -264,20 +272,20 @@ const mailer = new EmailClient(options);
 
 #### Options
 
-| Option | Type | Description |
-|--------|------|-------------|
-| `defaultLang` | `string` | Default language (`'fr'`, `'en'`) |
-| `subjects` | `Map` | Email subjects by template and language |
-| `defaults` | `object` | Default variables for all templates |
-| `transport` | `object` | Nodemailer transport configuration |
-| `transporter` | `object` | Custom Nodemailer transporter instance |
-| `templatesPath` | `string` | Path to templates directory |
-| `options` | `object` | Advanced options (see below) |
+| Option          | Type     | Description                             |
+| --------------- | -------- | --------------------------------------- |
+| `defaultLang`   | `string` | Default language (`'fr'`, `'en'`)       |
+| `subjects`      | `Map`    | Email subjects by template and language |
+| `defaults`      | `object` | Default variables for all templates     |
+| `transport`     | `object` | Nodemailer transport configuration      |
+| `transporter`   | `object` | Custom Nodemailer transporter instance  |
+| `templatesPath` | `string` | Path to templates directory             |
+| `options`       | `object` | Advanced options (see below)            |
 
 #### Advanced Options
 
-| Option | Type | Description |
-|--------|------|-------------|
+| Option               | Type      | Description                                           |
+| -------------------- | --------- | ----------------------------------------------------- |
 | `options.strictMode` | `boolean` | Throw errors for missing variables (default: `false`) |
 
 ### Methods
@@ -287,12 +295,12 @@ const mailer = new EmailClient(options);
 Compile a single template with variables.
 
 ```javascript
-const html = mailer.compileTemplate('password-reset', {
-  lang: 'fr',
-  variables: {
-    USER_NAME: 'User Name',
-    RESET_URL: 'https://example.com/reset'
-  }
+const html = mailer.compileTemplate("password-reset", {
+	lang: "fr",
+	variables: {
+		USER_NAME: "User Name",
+		RESET_URL: "https://example.com/reset",
+	},
 });
 ```
 
@@ -301,12 +309,12 @@ const html = mailer.compileTemplate('password-reset', {
 Compile a complete email (HTML + subject) from a template.
 
 ```javascript
-const { html, subject } = mailer.compileMail('password-reset', {
-  lang: 'fr',
-  variables: {
-    USER_NAME: 'User Name',
-    RESET_URL: 'https://example.com/reset'
-  }
+const { html, subject } = mailer.compileMail("password-reset", {
+	lang: "fr",
+	variables: {
+		USER_NAME: "User Name",
+		RESET_URL: "https://example.com/reset",
+	},
 });
 ```
 
@@ -316,10 +324,10 @@ Send a compiled email.
 
 ```javascript
 await mailer.sendMail({
-  to: 'recipient@example.com',
-  html,
-  subject,
-  from: 'noreply@example.com' // optional
+	to: "recipient@example.com",
+	html,
+	subject,
+	from: "noreply@example.com", // optional
 });
 ```
 
@@ -328,31 +336,35 @@ await mailer.sendMail({
 Register a template from a string (useful for dynamic templates).
 
 ```javascript
-mailer.registerTemplateString('dynamic-welcome', `
+mailer.registerTemplateString(
+	"dynamic-welcome",
+	`
   <h1>Hello {{USER_NAME}}!</h1>
   <p>Welcome to {{APP_NAME}}.</p>
-`, 'en');
+`,
+	"en",
+);
 ```
 
 #### Template Management Methods
 
 ```javascript
 // List available templates
-const templates = mailer.listAvailableTemplates('fr');
-console.log('Available FR templates:', templates);
+const templates = mailer.listAvailableTemplates("fr");
+console.log("Available FR templates:", templates);
 
 // Check if template exists
-if (mailer.templateExists('password-reset', 'fr')) {
-  console.log('Template exists!');
+if (mailer.templateExists("password-reset", "fr")) {
+	console.log("Template exists!");
 }
 
 // Get detailed template info
-const info = mailer.getTemplateInfo('password-reset', 'fr');
-console.log('Template info:', info);
+const info = mailer.getTemplateInfo("password-reset", "fr");
+console.log("Template info:", info);
 // Output: { name: 'password-reset', lang: 'fr', exists: true, source: 'disk', cached: true, path: '/path/to/template.xhtml' }
 
 // Clear cache for specific template
-mailer.clearTemplateCache('password-reset', 'fr');
+mailer.clearTemplateCache("password-reset", "fr");
 
 // Clear all cache
 mailer.clearCache();
@@ -363,15 +375,15 @@ mailer.clearCache();
 Send the same email to multiple recipients.
 
 ```javascript
-const { html, subject } = mailer.compileMail('newsletter-promotion', {
-  lang: 'fr',
-  variables: { PROMO_CODE: 'SAVE20' }
+const { html, subject } = mailer.compileMail("newsletter-promotion", {
+	lang: "fr",
+	variables: { PROMO_CODE: "SAVE20" },
 });
 
-await mailer.sendBulk(
-  ['user1@example.com', 'user2@example.com'],
-  { html, subject }
-);
+await mailer.sendBulk(["user1@example.com", "user2@example.com"], {
+	html,
+	subject,
+});
 ```
 
 ## Template Variables
@@ -379,18 +391,21 @@ await mailer.sendBulk(
 Each template supports specific variables. Here are the common ones:
 
 ### Password Reset Template
+
 - `USER_NAME` - Recipient's name
 - `USER_EMAIL` - Recipient's email
 - `RESET_URL` - Password reset link
 - `EXPIRATION_TIME` - Link expiration time
 
 ### Account Creation Template
+
 - `USER_NAME` - New user's name
 - `USER_EMAIL` - New user's email
 - `ACTIVATION_URL` - Account activation link
 - `APP_URL` - Your application URL
 
 ### Security Alert Template
+
 - `USER_NAME` - User's name
 - `LOGIN_TIME` - Time of suspicious login
 - `IP_ADDRESS` - Source IP address
@@ -403,9 +418,9 @@ The package comes with built-in French and English templates. You can extend wit
 
 ```javascript
 // Add custom subjects
-mailer.registerSubjects('password-reset', {
-  'es': 'Restablecer contraseña',
-  'de': 'Passwort zurücksetzen'
+mailer.registerSubjects("password-reset", {
+	es: "Restablecer contraseña",
+	de: "Passwort zurücksetzen",
 });
 
 // Create custom templates in templates/es-ES/ or templates/de-DE/
@@ -418,13 +433,13 @@ Composa makes email provider setup super easy with dedicated helper functions. N
 ### Quick Setup (Recommended)
 
 ```javascript
-import { EmailClient, defaultSubjects, createGmailConfig } from 'composa';
+import { EmailClient, defaultSubjects, createGmailConfig } from "composa";
 
 // Gmail - just 2 parameters!
 const mailer = new EmailClient({
-  defaultLang: 'fr',
-  subjects: defaultSubjects,
-  transport: createGmailConfig('your@gmail.com', 'your-app-password')
+	defaultLang: "fr",
+	subjects: defaultSubjects,
+	transport: createGmailConfig("your@gmail.com", "your-app-password"),
 });
 
 // That's it! No need to remember SMTP settings.
@@ -432,45 +447,45 @@ const mailer = new EmailClient({
 
 ### Available Quick Setup Functions
 
-| Function | Provider | What you need |
-|----------|----------|---------------|
-| `createGmailConfig(email, appPassword)` | Gmail | Gmail address + App Password |
-| `createOutlookConfig(email, password)` | Outlook/Hotmail | Outlook address + password |
-| `createYahooConfig(email, appPassword)` | Yahoo | Yahoo address + App Password |
-| `createSendGridConfig(apiKey)` | SendGrid | Just your API key |
-| `createMailgunConfig(domain, apiKey)` | Mailgun | Domain + API key |
-| `createTestConfig(user, pass)` | Ethereal (testing) | Test credentials |
+| Function                                | Provider           | What you need                |
+| --------------------------------------- | ------------------ | ---------------------------- |
+| `createGmailConfig(email, appPassword)` | Gmail              | Gmail address + App Password |
+| `createOutlookConfig(email, password)`  | Outlook/Hotmail    | Outlook address + password   |
+| `createYahooConfig(email, appPassword)` | Yahoo              | Yahoo address + App Password |
+| `createSendGridConfig(apiKey)`          | SendGrid           | Just your API key            |
+| `createMailgunConfig(domain, apiKey)`   | Mailgun            | Domain + API key             |
+| `createTestConfig(user, pass)`          | Ethereal (testing) | Test credentials             |
 
 ### Examples - Copy & Paste Ready
 
 ```javascript
-import { 
-  EmailClient, 
-  defaultSubjects,
-  createGmailConfig,
-  createOutlookConfig,
-  createSendGridConfig 
-} from 'composa';
+import {
+	EmailClient,
+	defaultSubjects,
+	createGmailConfig,
+	createOutlookConfig,
+	createSendGridConfig,
+} from "composa";
 
 // Gmail setup (requires App Password)
 const gmailMailer = new EmailClient({
-  defaultLang: 'fr',
-  subjects: defaultSubjects,
-  transport: createGmailConfig('me@gmail.com', 'myapppassword123')
+	defaultLang: "fr",
+	subjects: defaultSubjects,
+	transport: createGmailConfig("me@gmail.com", "myapppassword123"),
 });
 
 // Outlook setup (simple password)
 const outlookMailer = new EmailClient({
-  defaultLang: 'en', 
-  subjects: defaultSubjects,
-  transport: createOutlookConfig('me@outlook.com', 'mypassword')
+	defaultLang: "en",
+	subjects: defaultSubjects,
+	transport: createOutlookConfig("me@outlook.com", "mypassword"),
 });
 
 // SendGrid setup (just API key)
 const sendgridMailer = new EmailClient({
-  defaultLang: 'en',
-  subjects: defaultSubjects, 
-  transport: createSendGridConfig('SG.your-api-key-here')
+	defaultLang: "en",
+	subjects: defaultSubjects,
+	transport: createSendGridConfig("SG.your-api-key-here"),
 });
 ```
 
@@ -479,10 +494,10 @@ const sendgridMailer = new EmailClient({
 Get step-by-step instructions for any provider:
 
 ```javascript
-import { getProviderSetup } from 'composa';
+import { getProviderSetup } from "composa";
 
 // Get Gmail setup instructions
-const gmailSetup = getProviderSetup('gmail');
+const gmailSetup = getProviderSetup("gmail");
 console.log(gmailSetup.setupSteps);
 /*
 [
@@ -499,17 +514,21 @@ console.log(gmailSetup.setupSteps);
 For complete control, use the full configuration:
 
 ```javascript
-import { createProviderConfig } from 'composa';
+import { createProviderConfig } from "composa";
 
-const customConfig = createProviderConfig('gmail', {
-  user: 'your@gmail.com',
-  pass: 'your-app-password'
-}, {
-  // Optional: advanced settings
-  pool: true,
-  maxConnections: 5,
-  rateLimit: 10
-});
+const customConfig = createProviderConfig(
+	"gmail",
+	{
+		user: "your@gmail.com",
+		pass: "your-app-password",
+	},
+	{
+		// Optional: advanced settings
+		pool: true,
+		maxConnections: 5,
+		rateLimit: 10,
+	},
+);
 ```
 
 ### Custom SMTP Configuration
@@ -518,17 +537,17 @@ For providers not included in presets:
 
 ```javascript
 const mailer = new EmailClient({
-  defaultLang: 'fr',
-  subjects: defaultSubjects,
-  transport: {
-    host: 'mail.yourserver.com',
-    port: 465,
-    secure: true,
-    auth: {
-      user: 'noreply@yourserver.com',
-      pass: 'your-password'
-    }
-  }
+	defaultLang: "fr",
+	subjects: defaultSubjects,
+	transport: {
+		host: "mail.yourserver.com",
+		port: 465,
+		secure: true,
+		auth: {
+			user: "noreply@yourserver.com",
+			pass: "your-password",
+		},
+	},
 });
 ```
 
@@ -545,8 +564,8 @@ SMTP_PASSWORD=your-app-password
 ```javascript
 // Will automatically use environment variables
 const mailer = new EmailClient({
-  defaultLang: 'fr',
-  subjects: defaultSubjects
+	defaultLang: "fr",
+	subjects: defaultSubjects,
 });
 ```
 
@@ -570,25 +589,25 @@ your-project/
 ### Using Custom Templates
 
 ```javascript
-import { EmailClient } from 'composa';
+import { EmailClient } from "composa";
 
 const mailer = new EmailClient({
-  templatesPath: './my-templates',  // Path to your templates
-  defaultLang: 'en'
+	templatesPath: "./my-templates", // Path to your templates
+	defaultLang: "en",
 });
 
 // Use your custom template
-const { html, subject } = mailer.compileMail('welcome', {
-  variables: {
-    USER_NAME: 'John Doe',
-    APP_NAME: 'MyApp'
-  }
+const { html, subject } = mailer.compileMail("welcome", {
+	variables: {
+		USER_NAME: "John Doe",
+		APP_NAME: "MyApp",
+	},
 });
 
 await mailer.sendMail({
-  to: 'user@example.com',
-  html,
-  subject
+	to: "user@example.com",
+	html,
+	subject,
 });
 ```
 
@@ -597,22 +616,26 @@ await mailer.sendMail({
 ```xhtml
 <!DOCTYPE html>
 <html>
-<head>
-    <title>{{APP_NAME}}</title>
-    <style>
-        .container { max-width: 600px; margin: 0 auto; }
-        .button { background-color: #007bff; color: white; }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <h1>Hello {{USER_NAME}}!</h1>
-        <p>Welcome to {{APP_NAME}}.</p>
-        <a href="{{ACTIVATION_URL}}" class="button">
-            Activate Account
-        </a>
-    </div>
-</body>
+	<head>
+		<title>{{ APP_NAME }}</title>
+		<style>
+			.container {
+				max-width: 600px;
+				margin: 0 auto;
+			}
+			.button {
+				background-color: #007bff;
+				color: white;
+			}
+		</style>
+	</head>
+	<body>
+		<div class="container">
+			<h1>Hello {{ USER_NAME }}!</h1>
+			<p>Welcome to {{ APP_NAME }}.</p>
+			<a href="{{ ACTIVATION_URL }}" class="button"> Activate Account </a>
+		</div>
+	</body>
 </html>
 ```
 
@@ -622,21 +645,21 @@ Register subjects for your custom templates:
 
 ```javascript
 // Register subjects for custom templates
-mailer.registerSubjects('welcome', {
-  'en': 'Welcome to {{APP_NAME}}!',
-  'fr': 'Bienvenue sur {{APP_NAME}} !'
+mailer.registerSubjects("welcome", {
+	en: "Welcome to {{APP_NAME}}!",
+	fr: "Bienvenue sur {{APP_NAME}} !",
 });
 
 // Or use in constructor
 const customSubjects = new Map();
-customSubjects.set('welcome', {
-  'en': 'Welcome to {{APP_NAME}}!',
-  'fr': 'Bienvenue sur {{APP_NAME}} !'
+customSubjects.set("welcome", {
+	en: "Welcome to {{APP_NAME}}!",
+	fr: "Bienvenue sur {{APP_NAME}} !",
 });
 
 const mailer = new EmailClient({
-  subjects: customSubjects,
-  templatesPath: './templates'
+	subjects: customSubjects,
+	templatesPath: "./templates",
 });
 ```
 

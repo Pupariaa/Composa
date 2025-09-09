@@ -25,6 +25,7 @@ your-project/
 ### Default Template Path
 
 By default, Composa looks for templates in:
+
 - `./templates/` (relative to your project root)
 - Built-in templates are included in the package
 
@@ -33,11 +34,11 @@ By default, Composa looks for templates in:
 You can specify a custom template directory:
 
 ```javascript
-import { EmailClient } from 'composa';
+import { EmailClient } from "composa";
 
 const mailer = new EmailClient({
-  templatesPath: '/path/to/your/templates',
-  defaultLang: 'en'
+	templatesPath: "/path/to/your/templates",
+	defaultLang: "en",
 });
 ```
 
@@ -62,47 +63,57 @@ Templates are written in XHTML with variable placeholders:
 ```xhtml
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
-<head>
-    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>{{EMAIL_TITLE}}</title>
-    <style type="text/css">
-        /* Your CSS styles here */
-        .container { max-width: 600px; margin: 0 auto; }
-        .header { background-color: #f8f9fa; padding: 20px; }
-        .content { padding: 30px; }
-        .button { 
-            background-color: #007bff; 
-            color: white; 
-            padding: 12px 24px; 
-            text-decoration: none;
-            border-radius: 4px;
-            display: inline-block;
-        }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <div class="header">
-            <h1>{{APP_NAME}}</h1>
-        </div>
-        <div class="content">
-            <h2>Hello {{USER_NAME}}!</h2>
-            <p>Welcome to our service. We're excited to have you on board.</p>
-            
-            <p>
-                <a href="{{ACTIVATION_URL}}" class="button">
-                    Activate Your Account
-                </a>
-            </p>
-            
-            <p>
-                If you have any questions, please contact us at 
-                <a href="mailto:{{SUPPORT_EMAIL}}">{{SUPPORT_EMAIL}}</a>
-            </p>
-        </div>
-    </div>
-</body>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>{{ EMAIL_TITLE }}</title>
+		<style type="text/css">
+			/* Your CSS styles here */
+			.container {
+				max-width: 600px;
+				margin: 0 auto;
+			}
+			.header {
+				background-color: #f8f9fa;
+				padding: 20px;
+			}
+			.content {
+				padding: 30px;
+			}
+			.button {
+				background-color: #007bff;
+				color: white;
+				padding: 12px 24px;
+				text-decoration: none;
+				border-radius: 4px;
+				display: inline-block;
+			}
+		</style>
+	</head>
+	<body>
+		<div class="container">
+			<div class="header">
+				<h1>{{ APP_NAME }}</h1>
+			</div>
+			<div class="content">
+				<h2>Hello {{ USER_NAME }}!</h2>
+				<p>
+					Welcome to our service. We're excited to have you on board.
+				</p>
+
+				<p>
+					<a href="{{ ACTIVATION_URL }}" class="button">
+						Activate Your Account
+					</a>
+				</p>
+
+				<p>
+					If you have any questions, please contact us at
+					<a href="mailto:{{ SUPPORT_EMAIL }}">{{ SUPPORT_EMAIL }}</a>
+				</p>
+			</div>
+		</div>
+	</body>
 </html>
 ```
 
@@ -124,15 +135,13 @@ You can use simple conditionals in templates:
 <!-- Show content only if variable exists -->
 {{#PROMO_CODE}}
 <div class="promo">
-    Use code <strong>{{PROMO_CODE}}</strong> for discount!
+	Use code <strong>{{ PROMO_CODE }}</strong> for discount!
 </div>
 {{/PROMO_CODE}}
 
 <!-- Show alternative content if variable doesn't exist -->
 {{^PROMO_CODE}}
-<div class="info">
-    No special offers at this time.
-</div>
+<div class="info">No special offers at this time.</div>
 {{/PROMO_CODE}}
 ```
 
@@ -141,6 +150,7 @@ You can use simple conditionals in templates:
 ### Language Codes
 
 Composa uses standard language codes:
+
 - `en-EN` or `en` for English
 - `fr-FR` or `fr` for French
 - `es-ES` or `es` for Spanish
@@ -154,6 +164,7 @@ Composa uses standard language codes:
 3. Translate the content, keeping variable placeholders intact
 
 Example:
+
 ```
 templates/
 ├── en-EN/
@@ -169,25 +180,25 @@ templates/
 ### Basic Usage
 
 ```javascript
-import { EmailClient, defaultSubjects } from 'composa';
+import { EmailClient, defaultSubjects } from "composa";
 
 const mailer = new EmailClient({
-  defaultLang: 'en',
-  subjects: defaultSubjects,
-  templatesPath: './my-templates'  // Your custom template directory
+	defaultLang: "en",
+	subjects: defaultSubjects,
+	templatesPath: "./my-templates", // Your custom template directory
 });
 
 // Send using your custom template
 await mailer.sendTemplate({
-  to: 'user@example.com',
-  template: 'welcome',  // Corresponds to welcome.xhtml
-  lang: 'en',
-  variables: {
-    USER_NAME: 'John Doe',
-    APP_NAME: 'MyApp',
-    ACTIVATION_URL: 'https://myapp.com/activate/token123',
-    SUPPORT_EMAIL: 'support@myapp.com'
-  }
+	to: "user@example.com",
+	template: "welcome", // Corresponds to welcome.xhtml
+	lang: "en",
+	variables: {
+		USER_NAME: "John Doe",
+		APP_NAME: "MyApp",
+		ACTIVATION_URL: "https://myapp.com/activate/token123",
+		SUPPORT_EMAIL: "support@myapp.com",
+	},
 });
 ```
 
@@ -197,26 +208,26 @@ Register subjects for your custom templates:
 
 ```javascript
 // Register subjects for your custom template
-mailer.registerSubjects('welcome', {
-  'en': 'Welcome to {{APP_NAME}}!',
-  'fr': 'Bienvenue sur {{APP_NAME}} !',
-  'es': '¡Bienvenido a {{APP_NAME}}!'
+mailer.registerSubjects("welcome", {
+	en: "Welcome to {{APP_NAME}}!",
+	fr: "Bienvenue sur {{APP_NAME}} !",
+	es: "¡Bienvenido a {{APP_NAME}}!",
 });
 
 // Or register multiple templates at once
 const customSubjects = new Map();
-customSubjects.set('welcome', {
-  'en': 'Welcome to {{APP_NAME}}!',
-  'fr': 'Bienvenue sur {{APP_NAME}} !'
+customSubjects.set("welcome", {
+	en: "Welcome to {{APP_NAME}}!",
+	fr: "Bienvenue sur {{APP_NAME}} !",
 });
-customSubjects.set('invoice', {
-  'en': 'Invoice #{{INVOICE_NUMBER}} from {{APP_NAME}}',
-  'fr': 'Facture n°{{INVOICE_NUMBER}} de {{APP_NAME}}'
+customSubjects.set("invoice", {
+	en: "Invoice #{{INVOICE_NUMBER}} from {{APP_NAME}}",
+	fr: "Facture n°{{INVOICE_NUMBER}} de {{APP_NAME}}",
 });
 
 const mailer = new EmailClient({
-  subjects: customSubjects,
-  defaultLang: 'en'
+	subjects: customSubjects,
+	defaultLang: "en",
 });
 ```
 
@@ -227,24 +238,24 @@ You can also register templates programmatically without files:
 ```javascript
 // Register template content directly in code
 mailer.templates.registerTemplateString(
-  'simple-notification',
-  `<html>
+	"simple-notification",
+	`<html>
     <body>
       <h1>{{TITLE}}</h1>
       <p>{{MESSAGE}}</p>
     </body>
   </html>`,
-  'en'
+	"en",
 );
 
 // Use the in-memory template
 await mailer.sendTemplate({
-  to: 'user@example.com',
-  template: 'simple-notification',
-  variables: {
-    TITLE: 'System Update',
-    MESSAGE: 'Your account has been updated successfully.'
-  }
+	to: "user@example.com",
+	template: "simple-notification",
+	variables: {
+		TITLE: "System Update",
+		MESSAGE: "Your account has been updated successfully.",
+	},
 });
 ```
 
@@ -288,30 +299,30 @@ templates/
 Create a test script to preview your templates:
 
 ```javascript
-import { EmailClient } from 'composa';
+import { EmailClient } from "composa";
 
 const mailer = new EmailClient({
-  templatesPath: './templates',
-  transporter: {
-    // Mock transporter for testing
-    sendMail: async (options) => {
-      console.log('Subject:', options.subject);
-      console.log('HTML Preview:');
-      console.log(options.html);
-      return { messageId: 'test' };
-    }
-  }
+	templatesPath: "./templates",
+	transporter: {
+		// Mock transporter for testing
+		sendMail: async (options) => {
+			console.log("Subject:", options.subject);
+			console.log("HTML Preview:");
+			console.log(options.html);
+			return { messageId: "test" };
+		},
+	},
 });
 
 // Test your template
 await mailer.sendTemplate({
-  to: 'test@example.com',
-  template: 'welcome',
-  variables: {
-    USER_NAME: 'Test User',
-    APP_NAME: 'Test App',
-    ACTIVATION_URL: 'https://example.com/activate'
-  }
+	to: "test@example.com",
+	template: "welcome",
+	variables: {
+		USER_NAME: "Test User",
+		APP_NAME: "Test App",
+		ACTIVATION_URL: "https://example.com/activate",
+	},
 });
 ```
 
@@ -333,17 +344,17 @@ html-validator --file=templates/en-EN/welcome.xhtml
 
 ```javascript
 const mailer = new EmailClient({
-  templatesPath: './templates',
-  templateEngine: {
-    // Custom file extension (default: .xhtml)
-    extension: '.html',
-    
-    // Custom encoding (default: utf8)
-    encoding: 'utf8',
-    
-    // Cache templates in memory (default: true)
-    cache: true
-  }
+	templatesPath: "./templates",
+	templateEngine: {
+		// Custom file extension (default: .xhtml)
+		extension: ".html",
+
+		// Custom encoding (default: utf8)
+		encoding: "utf8",
+
+		// Cache templates in memory (default: true)
+		cache: true,
+	},
 });
 ```
 
@@ -355,21 +366,21 @@ Create base templates and extend them:
 <!-- base.xhtml -->
 <!DOCTYPE html>
 <html>
-<head>
-    <title>{{APP_NAME}}</title>
-    <!-- Common styles -->
-</head>
-<body>
-    <div class="container">
-        {{CONTENT}}
-    </div>
-</body>
+	<head>
+		<title>{{ APP_NAME }}</title>
+		<!-- Common styles -->
+	</head>
+	<body>
+		<div class="container">
+			{{ CONTENT }}
+		</div>
+	</body>
 </html>
 
 <!-- welcome.xhtml -->
 {{#extends "base"}}
 {{#CONTENT}}
-<h1>Welcome {{USER_NAME}}!</h1>
+<h1>Welcome {{ USER_NAME }}!</h1>
 <p>Thanks for joining us.</p>
 {{/CONTENT}}
 {{/extends}}
@@ -390,4 +401,5 @@ Create base templates and extend them:
 - [Email Client Compatibility Guide](https://www.campaignmonitor.com/css/)
 
 ---
+
 Happy templating with Composa!

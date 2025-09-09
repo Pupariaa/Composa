@@ -6,334 +6,449 @@ import { fileURLToPath } from "url";
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 export default class EmailClient {
-    constructor(options = {}) {
-        this.defaultFrom = options.defaultFrom || process.env.SMTP_FROM || process.env.SMTP_USER || "noreply@example.com";
-        this.defaultLang = options.defaultLang || "en";
+	constructor(options = {}) {
+		this.defaultFrom =
+			options.defaultFrom ||
+			process.env.SMTP_FROM ||
+			process.env.SMTP_USER ||
+			"noreply@example.com";
+		this.defaultLang = options.defaultLang || "en";
 
-        this.subjects = new Map();
-        if (options.subjects && typeof options.subjects === "object") {
-            for (const [template, perLang] of Object.entries(options.subjects)) {
-                this.subjects.set(template, { ...perLang });
-            }
-        }
+		this.subjects = new Map();
+		if (options.subjects && typeof options.subjects === "object") {
+			for (const [template, perLang] of Object.entries(
+				options.subjects,
+			)) {
+				this.subjects.set(template, { ...perLang });
+			}
+		}
 
-        this.defaults = {
-            APP_NAME: options.defaults?.APP_NAME || "Your App",
-            APP_URL: options.defaults?.APP_URL || "https://example.com",
-            SUPPORT_EMAIL: options.defaults?.SUPPORT_EMAIL || "support@example.com",
-            CURRENT_YEAR: String(new Date().getFullYear()),
-            ...options.defaults,
-        };
+		this.defaults = {
+			APP_NAME: options.defaults?.APP_NAME || "Your App",
+			APP_URL: options.defaults?.APP_URL || "https://example.com",
+			SUPPORT_EMAIL:
+				options.defaults?.SUPPORT_EMAIL || "support@example.com",
+			CURRENT_YEAR: String(new Date().getFullYear()),
+			...options.defaults,
+		};
 
-        this.templatesPath = options.templatesPath || path.join(__dirname, "..", "templates");
-        this.cache = new Map();
-        this.memoryTemplates = new Map();
+		this.templatesPath =
+			options.templatesPath || path.join(__dirname, "..", "templates");
+		this.cache = new Map();
+		this.memoryTemplates = new Map();
 
-        this.transporter = options.transporter
-            || nodemailer.createTransport(options.transport || EmailClient.transportFromEnv());
-    }
+		this.transporter =
+			options.transporter ||
+			nodemailer.createTransport(
+				options.transport || EmailClient.transportFromEnv(),
+			);
+	}
 
-    static transportFromEnv() {
-        if (!process.env.SMTP_HOST || !process.env.SMTP_USER || !process.env.SMTP_PASSWORD) {
-            throw new Error("Incomplete SMTP configuration. Required: SMTP_HOST, SMTP_USER, SMTP_PASSWORD");
-        }
-        const config = {
-            host: process.env.SMTP_HOST,
-            port: parseInt(process.env.SMTP_PORT || "587", 10),
-            secure: String(process.env.SMTP_SECURE || "false").toLowerCase() === "true",
-            auth: { user: process.env.SMTP_USER, pass: process.env.SMTP_PASSWORD },
-            pool: true,
-            maxConnections: 5,
-            maxMessages: 10,
-            rateLimit: 10,
-            connectionTimeout: 60000,
-            greetingTimeout: 30000,
-            socketTimeout: 60000,
-        };
-        if (process.env.DKIM_PRIVATE_KEY && process.env.DKIM_DOMAIN) {
-            config.dkim = {
-                domainName: process.env.DKIM_DOMAIN,
-                keySelector: process.env.DKIM_SELECTOR || "default",
-                privateKey: process.env.DKIM_PRIVATE_KEY,
-            };
-        }
-        return config;
-    }
+	static transportFromEnv() {
+		if (
+			!process.env.SMTP_HOST ||
+			!process.env.SMTP_USER ||
+			!process.env.SMTP_PASSWORD
+		) {
+			throw new Error(
+				"Incomplete SMTP configuration. Required: SMTP_HOST, SMTP_USER, SMTP_PASSWORD",
+			);
+		}
+		const config = {
+			host: process.env.SMTP_HOST,
+			port: parseInt(process.env.SMTP_PORT || "587", 10),
+			secure:
+				String(process.env.SMTP_SECURE || "false").toLowerCase() ===
+				"true",
+			auth: {
+				user: process.env.SMTP_USER,
+				pass: process.env.SMTP_PASSWORD,
+			},
+			pool: true,
+			maxConnections: 5,
+			maxMessages: 10,
+			rateLimit: 10,
+			connectionTimeout: 60000,
+			greetingTimeout: 30000,
+			socketTimeout: 60000,
+		};
+		if (process.env.DKIM_PRIVATE_KEY && process.env.DKIM_DOMAIN) {
+			config.dkim = {
+				domainName: process.env.DKIM_DOMAIN,
+				keySelector: process.env.DKIM_SELECTOR || "default",
+				privateKey: process.env.DKIM_PRIVATE_KEY,
+			};
+		}
+		return config;
+	}
 
-    registerSubject(templateName, lang, subject) {
-        if (!this.subjects.has(templateName)) this.subjects.set(templateName, {});
-        this.subjects.get(templateName)[lang] = subject;
-    }
+	registerSubject(templateName, lang, subject) {
+		if (!this.subjects.has(templateName))
+			this.subjects.set(templateName, {});
+		this.subjects.get(templateName)[lang] = subject;
+	}
 
-    registerSubjects(templateName, map) {
-        if (!this.subjects.has(templateName)) this.subjects.set(templateName, {});
-        Object.assign(this.subjects.get(templateName), map);
-    }
+	registerSubjects(templateName, map) {
+		if (!this.subjects.has(templateName))
+			this.subjects.set(templateName, {});
+		Object.assign(this.subjects.get(templateName), map);
+	}
 
-    getSubject(templateName, { lang = this.defaultLang, variables = {} } = {}) {
-        const perLang = this.subjects.get(templateName) || {};
-        const subject = perLang[lang] || perLang[this.defaultLang] || this.#humanize(templateName);
-        return this.#replaceVariables(subject, variables);
-    }
+	getSubject(templateName, { lang = this.defaultLang, variables = {} } = {}) {
+		const perLang = this.subjects.get(templateName) || {};
+		const subject =
+			perLang[lang] ||
+			perLang[this.defaultLang] ||
+			this.#humanize(templateName);
+		return this.#replaceVariables(subject, variables);
+	}
 
-    #humanize(id) {
-        return String(id)
-            .replace(/[-_]+/g, " ")
-            .trim()
-            .replace(/(^|\s)\S/g, s => s.toUpperCase());
-    }
+	#humanize(id) {
+		return String(id)
+			.replace(/[-_]+/g, " ")
+			.trim()
+			.replace(/(^|\s)\S/g, (s) => s.toUpperCase());
+	}
 
-    async send(mailOptions) {
-        const options = { from: this.defaultFrom, ...mailOptions };
-        const info = await this.transporter.sendMail(options);
-        return { success: true, messageId: info.messageId, response: info.response };
-    }
+	async send(mailOptions) {
+		const options = { from: this.defaultFrom, ...mailOptions };
+		const info = await this.transporter.sendMail(options);
+		return {
+			success: true,
+			messageId: info.messageId,
+			response: info.response,
+		};
+	}
 
-    async sendBulk(recipients, mailOptions) {
-        const results = [];
-        for (const recipient of recipients) {
-            try {
-                const res = await this.send({ ...mailOptions, to: recipient });
-                results.push({ recipient, ...res });
-            } catch (error) {
-                results.push({ recipient, success: false, error: error.message });
-            }
-        }
-        return results;
-    }
+	async sendBulk(recipients, mailOptions) {
+		const results = [];
+		for (const recipient of recipients) {
+			try {
+				const res = await this.send({ ...mailOptions, to: recipient });
+				results.push({ recipient, ...res });
+			} catch (error) {
+				results.push({
+					recipient,
+					success: false,
+					error: error.message,
+				});
+			}
+		}
+		return results;
+	}
 
-    async sendWithRetry(mailOptions, maxRetries = 3) {
-        let lastError = null;
-        for (let attempt = 1; attempt <= maxRetries; attempt++) {
-            try {
-                const res = await this.send(mailOptions);
-                if (res.success) return res;
-                lastError = new Error(res.error || "Unknown error");
-            } catch (err) {
-                lastError = err;
-            }
-            if (attempt < maxRetries) await new Promise(r => setTimeout(r, Math.pow(2, attempt) * 1000));
-        }
-        return { success: false, error: `Failure after ${maxRetries} attempts: ${lastError?.message || lastError}` };
-    }
+	async sendWithRetry(mailOptions, maxRetries = 3) {
+		let lastError = null;
+		for (let attempt = 1; attempt <= maxRetries; attempt++) {
+			try {
+				const res = await this.send(mailOptions);
+				if (res.success) return res;
+				lastError = new Error(res.error || "Unknown error");
+			} catch (err) {
+				lastError = err;
+			}
+			if (attempt < maxRetries)
+				await new Promise((r) =>
+					setTimeout(r, Math.pow(2, attempt) * 1000),
+				);
+		}
+		return {
+			success: false,
+			error: `Failure after ${maxRetries} attempts: ${lastError?.message || lastError}`,
+		};
+	}
 
-    async sendMail({ to, subject, html, from, cc, bcc, replyTo, attachments }) {
-        return this.send({ to, subject, html, from, cc, bcc, replyTo, attachments });
-    }
+	async sendMail({ to, subject, html, from, cc, bcc, replyTo, attachments }) {
+		return this.send({
+			to,
+			subject,
+			html,
+			from,
+			cc,
+			bcc,
+			replyTo,
+			attachments,
+		});
+	}
 
-    compileMail(templateName, { lang = this.defaultLang, variables = {} } = {}) {
-        const html = this.compileTemplate(templateName, { lang, variables });
-        const subject = this.getSubject(templateName, { lang, variables });
-        return { html, subject };
-    }
+	compileMail(
+		templateName,
+		{ lang = this.defaultLang, variables = {} } = {},
+	) {
+		const html = this.compileTemplate(templateName, { lang, variables });
+		const subject = this.getSubject(templateName, { lang, variables });
+		return { html, subject };
+	}
 
-    async verifyConnection() {
-        try { await this.transporter.verify(); return true; }
-        catch { return false; }
-    }
+	async verifyConnection() {
+		try {
+			await this.transporter.verify();
+			return true;
+		} catch {
+			return false;
+		}
+	}
 
-    async testConfiguration() {
-        const smtp = await this.verifyConnection();
-        const hasDkim = !!this.transporter.options?.dkim;
-        return {
-            smtp,
-            dkim: hasDkim,
-            host: this.transporter.options?.host,
-            port: this.transporter.options?.port,
-            secure: this.transporter.options?.secure,
-            sender: this.defaultFrom,
-            defaultLang: this.defaultLang,
-        };
-    }
+	async testConfiguration() {
+		const smtp = await this.verifyConnection();
+		const hasDkim = !!this.transporter.options?.dkim;
+		return {
+			smtp,
+			dkim: hasDkim,
+			host: this.transporter.options?.host,
+			port: this.transporter.options?.port,
+			secure: this.transporter.options?.secure,
+			sender: this.defaultFrom,
+			defaultLang: this.defaultLang,
+		};
+	}
 
-    // --- Template Engine ---
-    registerTemplateString(templateName, templateString, lang = this.defaultLang) {
-        if (!templateName || typeof templateName !== 'string') {
-            throw new Error('Template name must be a non-empty string');
-        }
-        if (!templateString || typeof templateString !== 'string') {
-            throw new Error('Template string must be a non-empty string');
-        }
-        this.memoryTemplates.set(`${lang}/${templateName}`, templateString);
-        // Clear cache for this template to force reload
-        this.cache.delete(`${lang}/${templateName}`);
-    }
+	// --- Template Engine ---
+	registerTemplateString(
+		templateName,
+		templateString,
+		lang = this.defaultLang,
+	) {
+		if (!templateName || typeof templateName !== "string") {
+			throw new Error("Template name must be a non-empty string");
+		}
+		if (!templateString || typeof templateString !== "string") {
+			throw new Error("Template string must be a non-empty string");
+		}
+		this.memoryTemplates.set(`${lang}/${templateName}`, templateString);
+		// Clear cache for this template to force reload
+		this.cache.delete(`${lang}/${templateName}`);
+	}
 
-    clearCache() {
-        this.cache.clear();
-    }
+	clearCache() {
+		this.cache.clear();
+	}
 
-    clearTemplateCache(templateName, lang = this.defaultLang) {
-        this.cache.delete(`${lang}/${templateName}`);
-    }
+	clearTemplateCache(templateName, lang = this.defaultLang) {
+		this.cache.delete(`${lang}/${templateName}`);
+	}
 
-    #readTemplateFromDiskSync(templateName, lang) {
-        // Validate template name to prevent path traversal
-        if (!templateName || typeof templateName !== 'string' || templateName.includes('..') || templateName.includes('/')) {
-            throw new Error(`Invalid template name: "${templateName}". Template names must be safe strings without path traversal.`);
-        }
+	#readTemplateFromDiskSync(templateName, lang) {
+		// Validate template name to prevent path traversal
+		if (
+			!templateName ||
+			typeof templateName !== "string" ||
+			templateName.includes("..") ||
+			templateName.includes("/")
+		) {
+			throw new Error(
+				`Invalid template name: "${templateName}". Template names must be safe strings without path traversal.`,
+			);
+		}
 
-        const filePath = path.join(this.templatesPath, lang, `${templateName}.xhtml`);
-        if (!fs.existsSync(filePath)) {
-            throw new Error(`Template file missing: ${filePath}. Available languages: ${this.#getAvailableLanguages().join(', ')}`);
-        }
-        return fs.readFileSync(filePath, "utf8");
-    }
+		const filePath = path.join(
+			this.templatesPath,
+			lang,
+			`${templateName}.xhtml`,
+		);
+		if (!fs.existsSync(filePath)) {
+			throw new Error(
+				`Template file missing: ${filePath}. Available languages: ${this.#getAvailableLanguages().join(", ")}`,
+			);
+		}
+		return fs.readFileSync(filePath, "utf8");
+	}
 
-    #getAvailableLanguages() {
-        try {
-            return fs.readdirSync(this.templatesPath, { withFileTypes: true })
-                .filter(dirent => dirent.isDirectory())
-                .map(dirent => dirent.name);
-        } catch {
-            return [];
-        }
-    }
+	#getAvailableLanguages() {
+		try {
+			return fs
+				.readdirSync(this.templatesPath, { withFileTypes: true })
+				.filter((dirent) => dirent.isDirectory())
+				.map((dirent) => dirent.name);
+		} catch {
+			return [];
+		}
+	}
 
-    #loadTemplate(templateName, lang = this.defaultLang) {
-        // Try language candidates with fallbacks (retro-compatibility)
-        const candidates = this.#getLangCandidates(lang);
+	#loadTemplate(templateName, lang = this.defaultLang) {
+		// Try language candidates with fallbacks (retro-compatibility)
+		const candidates = this.#getLangCandidates(lang);
 
-        for (const candidate of candidates) {
-            const key = `${candidate}/${templateName}`;
-            if (this.memoryTemplates.has(key)) return this.memoryTemplates.get(key);
-            if (this.cache.has(key)) return this.cache.get(key);
+		for (const candidate of candidates) {
+			const key = `${candidate}/${templateName}`;
+			if (this.memoryTemplates.has(key))
+				return this.memoryTemplates.get(key);
+			if (this.cache.has(key)) return this.cache.get(key);
 
-            try {
-                const tpl = this.#readTemplateFromDiskSync(templateName, candidate);
-                this.cache.set(key, tpl);
-                return tpl;
-            } catch (err) {
-                // Try next candidate
-            }
-        }
+			try {
+				const tpl = this.#readTemplateFromDiskSync(
+					templateName,
+					candidate,
+				);
+				this.cache.set(key, tpl);
+				return tpl;
+			} catch (err) {
+				// Try next candidate
+			}
+		}
 
-        // Final attempt: try defaultLang candidates
-        const fallbacks = this.#getLangCandidates(this.defaultLang);
-        for (const candidate of fallbacks) {
-            const key = `${candidate}/${templateName}`;
-            if (this.memoryTemplates.has(key)) return this.memoryTemplates.get(key);
-            if (this.cache.has(key)) return this.cache.get(key);
-            try {
-                const tpl = this.#readTemplateFromDiskSync(templateName, candidate);
-                this.cache.set(key, tpl);
-                return tpl;
-            } catch (err) { }
-        }
+		// Final attempt: try defaultLang candidates
+		const fallbacks = this.#getLangCandidates(this.defaultLang);
+		for (const candidate of fallbacks) {
+			const key = `${candidate}/${templateName}`;
+			if (this.memoryTemplates.has(key))
+				return this.memoryTemplates.get(key);
+			if (this.cache.has(key)) return this.cache.get(key);
+			try {
+				const tpl = this.#readTemplateFromDiskSync(
+					templateName,
+					candidate,
+				);
+				this.cache.set(key, tpl);
+				return tpl;
+			} catch (err) {}
+		}
 
-        throw new Error(`Template "${templateName}" not found for language "${lang}"`);
-    }
+		throw new Error(
+			`Template "${templateName}" not found for language "${lang}"`,
+		);
+	}
 
-    #getLangCandidates(lang) {
-        const normalized = (lang || this.defaultLang).toLowerCase();
-        const list = [normalized];
-        // Add common variants as fallbacks (retro-compatibility)
-        if (normalized === "en") list.push("en-EN", "en-US");
-        if (normalized === "fr") list.push("fr-FR");
-        return list;
-    }
+	#getLangCandidates(lang) {
+		const normalized = (lang || this.defaultLang).toLowerCase();
+		const list = [normalized];
+		// Add common variants as fallbacks (retro-compatibility)
+		if (normalized === "en") list.push("en-EN", "en-US");
+		if (normalized === "fr") list.push("fr-FR");
+		return list;
+	}
 
-    #replaceVariables(template, variables = {}) {
-        const data = { ...this.defaults, ...variables };
-        const missing = [];
-        const used = new Set();
+	#replaceVariables(template, variables = {}) {
+		const data = { ...this.defaults, ...variables };
+		const missing = [];
+		const used = new Set();
 
-        // More efficient regex with word boundaries and better escaping
-        const result = template.replace(/\{\{([a-zA-Z_][a-zA-Z0-9_]*)\}\}/g, (match, key) => {
-            used.add(key);
-            if (data[key] == null) {
-                missing.push(key);
-                return "";
-            }
-            // Escape HTML in variables to prevent XSS
-            return String(data[key]).replace(/[&<>"']/g, (char) => {
-                const escapeMap = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' };
-                return escapeMap[char];
-            });
-        });
+		// More efficient regex with word boundaries and better escaping
+		const result = template.replace(
+			/\{\{([a-zA-Z_][a-zA-Z0-9_]*)\}\}/g,
+			(match, key) => {
+				used.add(key);
+				if (data[key] == null) {
+					missing.push(key);
+					return "";
+				}
+				// Escape HTML in variables to prevent XSS
+				return String(data[key]).replace(/[&<>"']/g, (char) => {
+					const escapeMap = {
+						"&": "&amp;",
+						"<": "&lt;",
+						">": "&gt;",
+						'"': "&quot;",
+						"'": "&#39;",
+					};
+					return escapeMap[char];
+				});
+			},
+		);
 
-        if (missing.length) {
-            const warning = `Warning: missing variables in template: ${missing.join(", ")}`;
-            if (this.options?.strictMode) {
-                throw new Error(warning);
-            } else {
-                console.warn(warning);
-            }
-        }
+		if (missing.length) {
+			const warning = `Warning: missing variables in template: ${missing.join(", ")}`;
+			if (this.options?.strictMode) {
+				throw new Error(warning);
+			} else {
+				console.warn(warning);
+			}
+		}
 
-        return result;
-    }
+		return result;
+	}
 
-    compileTemplate(templateName, { lang = this.defaultLang, variables = {} } = {}) {
-        const tpl = this.#loadTemplate(templateName, lang);
-        return this.#replaceVariables(tpl, variables);
-    }
+	compileTemplate(
+		templateName,
+		{ lang = this.defaultLang, variables = {} } = {},
+	) {
+		const tpl = this.#loadTemplate(templateName, lang);
+		return this.#replaceVariables(tpl, variables);
+	}
 
-    // --- Retro-compatibility methods ---
+	// --- Retro-compatibility methods ---
 
-    /**
-     * Render a template (retro-compatibility with old API)
-     * @deprecated Use compileTemplate instead
-     */
-    async render(templateName, variables = {}, lang = this.defaultLang) {
-        return this.compileTemplate(templateName, { lang, variables });
-    }
+	/**
+	 * Render a template (retro-compatibility with old API)
+	 * @deprecated Use compileTemplate instead
+	 */
+	async render(templateName, variables = {}, lang = this.defaultLang) {
+		return this.compileTemplate(templateName, { lang, variables });
+	}
 
-    /**
-     * Send a template by id and language (retro-compatibility with old API)
-     * @deprecated Use compileMail + sendMail instead
-     */
-    async sendTemplate(opts) {
-        const {
-            to,
-            template,
-            variables = {},
-            lang = this.defaultLang,
-            subject = this.getSubject(template, { lang, variables }),
-            from,
-            cc,
-            bcc,
-            replyTo,
-            attachments,
-        } = opts;
+	/**
+	 * Send a template by id and language (retro-compatibility with old API)
+	 * @deprecated Use compileMail + sendMail instead
+	 */
+	async sendTemplate(opts) {
+		const {
+			to,
+			template,
+			variables = {},
+			lang = this.defaultLang,
+			subject = this.getSubject(template, { lang, variables }),
+			from,
+			cc,
+			bcc,
+			replyTo,
+			attachments,
+		} = opts;
 
-        const html = await this.render(template, variables, lang);
-        return this.send({ to, subject, html, from, cc, bcc, replyTo, attachments });
-    }
+		const html = await this.render(template, variables, lang);
+		return this.send({
+			to,
+			subject,
+			html,
+			from,
+			cc,
+			bcc,
+			replyTo,
+			attachments,
+		});
+	}
 
-    // Utility methods for template management
-    listAvailableTemplates(lang = this.defaultLang) {
-        try {
-            const langPath = path.join(this.templatesPath, lang);
-            if (!fs.existsSync(langPath)) return [];
+	// Utility methods for template management
+	listAvailableTemplates(lang = this.defaultLang) {
+		try {
+			const langPath = path.join(this.templatesPath, lang);
+			if (!fs.existsSync(langPath)) return [];
 
-            return fs.readdirSync(langPath)
-                .filter(file => file.endsWith('.xhtml'))
-                .map(file => file.replace('.xhtml', ''));
-        } catch {
-            return [];
-        }
-    }
+			return fs
+				.readdirSync(langPath)
+				.filter((file) => file.endsWith(".xhtml"))
+				.map((file) => file.replace(".xhtml", ""));
+		} catch {
+			return [];
+		}
+	}
 
-    templateExists(templateName, lang = this.defaultLang) {
-        const key = `${lang}/${templateName}`;
-        return this.memoryTemplates.has(key) ||
-            fs.existsSync(path.join(this.templatesPath, lang, `${templateName}.xhtml`));
-    }
+	templateExists(templateName, lang = this.defaultLang) {
+		const key = `${lang}/${templateName}`;
+		return (
+			this.memoryTemplates.has(key) ||
+			fs.existsSync(
+				path.join(this.templatesPath, lang, `${templateName}.xhtml`),
+			)
+		);
+	}
 
-    getTemplateInfo(templateName, lang = this.defaultLang) {
-        const key = `${lang}/${templateName}`;
-        const isInMemory = this.memoryTemplates.has(key);
-        const isCached = this.cache.has(key);
-        const existsOnDisk = fs.existsSync(path.join(this.templatesPath, lang, `${templateName}.xhtml`));
+	getTemplateInfo(templateName, lang = this.defaultLang) {
+		const key = `${lang}/${templateName}`;
+		const isInMemory = this.memoryTemplates.has(key);
+		const isCached = this.cache.has(key);
+		const existsOnDisk = fs.existsSync(
+			path.join(this.templatesPath, lang, `${templateName}.xhtml`),
+		);
 
-        return {
-            name: templateName,
-            lang,
-            exists: isInMemory || existsOnDisk,
-            source: isInMemory ? 'memory' : existsOnDisk ? 'disk' : 'none',
-            cached: isCached,
-            path: existsOnDisk ? path.join(this.templatesPath, lang, `${templateName}.xhtml`) : null
-        };
-    }
+		return {
+			name: templateName,
+			lang,
+			exists: isInMemory || existsOnDisk,
+			source: isInMemory ? "memory" : existsOnDisk ? "disk" : "none",
+			cached: isCached,
+			path: existsOnDisk
+				? path.join(this.templatesPath, lang, `${templateName}.xhtml`)
+				: null,
+		};
+	}
 }
