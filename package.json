@@ -9,8 +9,8 @@
 		"./templates": "./templates/"
 	},
 	"scripts": {
-		"example": "node examples/basic-usage.js",
-		"example-advanced": "node examples/advanced-usage.js",
+		"example": "node examples/basic/01_mock_transporter.js",
+		"example-advanced": "node examples/advanced/02_bulk_sending.js",
 		"format": "prettier --write ."
 	},
 	"files": [
