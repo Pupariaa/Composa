@@ -77,6 +77,17 @@ export const emailProviders = {
 		notes: "Requires App Password. Enable 2FA first on your Apple ID.",
 	},
 
+	// Microsoft Outlook
+	outlook: {
+		host: "smtp-mail.outlook.com",
+		port: 587,
+		secure: false,
+		requiresAuth: true,
+		authType: "login",
+		docs: "https://support.microsoft.com/en-us/office/pop-imap-and-smtp-settings-for-outlook-com-d088b986-291d-42b8-9564-9c414e2aa040",
+		notes: "Use your Outlook email and password. May require App Password for 2FA accounts.",
+	},
+
 };
 
 /**
@@ -215,6 +226,16 @@ export function createGmailConfig(email, appPassword) {
 	return createProviderConfig("gmail", { user: email, pass: appPassword });
 }
 
+/**
+ * Create Outlook configuration
+ * @param {string} email - Your Outlook email address
+ * @param {string} password - Your Outlook password or App Password
+ * @returns {object} Outlook transport configuration
+ */
+export function createOutlookConfig(email, password) {
+	return createProviderConfig("outlook", { user: email, pass: password });
+}
+
 
 /**
  * Create Yahoo configuration - requires App Password
@@ -264,6 +285,23 @@ export function createZohoConfig(email, password) {
  */
 export function createiCloudConfig(email, appPassword) {
 	return createProviderConfig("icloud", { user: email, pass: appPassword });
+}
+
+
+/**
+ * Create test configuration (Ethereal Email)
+ * @returns {object} Test transport configuration
+ */
+export function createTestConfig() {
+	return {
+		host: "smtp.ethereal.email",
+		port: 587,
+		secure: false,
+		auth: {
+			user: "ethereal.user@ethereal.email",
+			pass: "ethereal.pass"
+		}
+	};
 }
 
 /**
