@@ -11,10 +11,13 @@ Compose beautiful multilingual emails with XHTML templates and Nodemailer integr
 - **Multilingual Support** - Built-in French and English templates
 - **Professional Templates** - Pre-designed XHTML email templates
 - **Easy Configuration** - Simple setup with Nodemailer
+- **Interactive CLI** - Guided setup for email providers with step-by-step instructions
+- **Multiple Providers** - Support for Gmail, Yahoo, AOL, GMX, Zoho, and iCloud
 - **Template Engine** - Variable interpolation and conditional rendering
 - **Ready-to-use** - Pre-built templates for common use cases
 - **Modern ESM** - ES modules with async/await support
 - **Component-based Flow** - Compose templates like components (compileTemplate → compileMail → sendMail)
+- **Security First** - Built-in warnings and best practices for credential management
 
 ## Available Templates
 
@@ -38,20 +41,12 @@ npm install composa
 ### Basic Usage
 
 ```javascript
-import { EmailClient, defaultSubjects } from "composa";
+import { EmailClient, defaultSubjects, createGmailConfig } from "composa";
 
 const mailer = new EmailClient({
 	defaultLang: "fr",
 	subjects: defaultSubjects,
-	transport: {
-		host: "smtp.gmail.com",
-		port: 587,
-		secure: false,
-		auth: {
-			user: "your-email@gmail.com",
-			pass: "your-app-password",
-		},
-	},
+	transport: createGmailConfig("your-email@gmail.com", "your-app-password"),
 });
 
 // New flow: compileMail → sendMail
@@ -450,11 +445,11 @@ const mailer = new EmailClient({
 | Function                                | Provider           | What you need                |
 | --------------------------------------- | ------------------ | ---------------------------- |
 | `createGmailConfig(email, appPassword)` | Gmail              | Gmail address + App Password |
-| `createOutlookConfig(email, password)`  | Outlook/Hotmail    | Outlook address + password   |
 | `createYahooConfig(email, appPassword)` | Yahoo              | Yahoo address + App Password |
-| `createSendGridConfig(apiKey)`          | SendGrid           | Just your API key            |
-| `createMailgunConfig(domain, apiKey)`   | Mailgun            | Domain + API key             |
-| `createTestConfig(user, pass)`          | Ethereal (testing) | Test credentials             |
+| `createAOLConfig(email, appPassword)`   | AOL                | AOL address + App Password   |
+| `createGMXConfig(email, password)`      | GMX                | GMX address + password       |
+| `createZohoConfig(email, password)`     | Zoho               | Zoho address + App Password  |
+| `createiCloudConfig(email, appPassword)`| iCloud             | iCloud address + App Password|
 
 ### Examples - Copy & Paste Ready
 
@@ -463,8 +458,11 @@ import {
 	EmailClient,
 	defaultSubjects,
 	createGmailConfig,
-	createOutlookConfig,
-	createSendGridConfig,
+	createYahooConfig,
+	createAOLConfig,
+	createGMXConfig,
+	createZohoConfig,
+	createiCloudConfig,
 } from "composa";
 
 // Gmail setup (requires App Password)
@@ -474,18 +472,39 @@ const gmailMailer = new EmailClient({
 	transport: createGmailConfig("me@gmail.com", "myapppassword123"),
 });
 
-// Outlook setup (simple password)
-const outlookMailer = new EmailClient({
+// Yahoo setup (requires App Password)
+const yahooMailer = new EmailClient({
 	defaultLang: "en",
 	subjects: defaultSubjects,
-	transport: createOutlookConfig("me@outlook.com", "mypassword"),
+	transport: createYahooConfig("me@yahoo.com", "myapppassword123"),
 });
 
-// SendGrid setup (just API key)
-const sendgridMailer = new EmailClient({
+// AOL setup (requires App Password)
+const aolMailer = new EmailClient({
 	defaultLang: "en",
 	subjects: defaultSubjects,
-	transport: createSendGridConfig("SG.your-api-key-here"),
+	transport: createAOLConfig("me@aol.com", "myapppassword123"),
+});
+
+// GMX setup (regular password or App Password)
+const gmxMailer = new EmailClient({
+	defaultLang: "en",
+	subjects: defaultSubjects,
+	transport: createGMXConfig("me@gmx.com", "mypassword"),
+});
+
+// Zoho setup (requires App Password)
+const zohoMailer = new EmailClient({
+	defaultLang: "en",
+	subjects: defaultSubjects,
+	transport: createZohoConfig("me@zoho.com", "myapppassword123"),
+});
+
+// iCloud setup (requires App Password)
+const icloudMailer = new EmailClient({
+	defaultLang: "en",
+	subjects: defaultSubjects,
+	transport: createiCloudConfig("me@icloud.com", "myapppassword123"),
 });
 ```
 
@@ -568,6 +587,146 @@ const mailer = new EmailClient({
 	subjects: defaultSubjects,
 });
 ```
+
+## Interactive CLI Setup
+
+Composa includes a powerful CLI tool that guides you through setting up your email provider with step-by-step instructions.
+
+### Quick Setup Commands
+
+```bash
+# Setup Gmail with App Passwords
+npx composa gmail
+
+# Setup Yahoo with App Passwords  
+npx composa yahoo
+
+# Setup AOL with App Passwords
+npx composa aol
+
+# Setup GMX (regular password or App Password)
+npx composa gmx
+
+# Setup Zoho with App Passwords
+npx composa zoho
+
+# Setup iCloud with App Passwords
+npx composa icloud
+
+# List all available providers
+npx composa list
+
+# Show help
+npx composa help
+```
+
+### What the CLI Does
+
+The CLI provides an interactive setup experience that:
+
+- **Guides you through 2FA setup** for providers that require it
+- **Helps you generate App Passwords** with step-by-step instructions
+- **Generates ready-to-use code** with proper imports and configuration
+- **Includes security warnings** about environment variables and best practices
+- **Offers to save configuration** to a file for easy integration
+
+### Example CLI Session
+
+```bash
+$ npx composa gmail
+
+╔══════════════════════════════════════════════════════════════╗
+║                        Composa CLI                           ║
+║              Interactive Email Provider Setup                ║
+╚══════════════════════════════════════════════════════════════╝
+
+Setting up GMAIL App Password configuration
+────────────────────────────────────────────────────────────
+
+Welcome to the Gmail App Password Setup!
+This will guide you through enabling 2FA and creating an App Password for Gmail.
+
+STEP 1: Enable Two-Factor Authentication
+────────────────────────────────────────
+
+1. Go to your Google Account settings:
+   https://myaccount.google.com/
+
+2. Click on "Security" in the left sidebar
+
+3. Under "Signing in to Google", click "2-Step Verification"
+
+4. Follow the setup process to enable 2FA
+   • You'll need your phone for verification
+   • This is required to create App Passwords
+
+Have you enabled 2-Step Verification? (y/N): y
+
+STEP 2: Generate App Password
+─────────────────────────────
+
+1. Go to Google App Passwords:
+   https://myaccount.google.com/apppasswords
+
+2. Sign in with your Google account
+
+3. Select "Mail" as the app
+
+4. Select "Other (Custom name)" as the device
+
+5. Enter a name for your app (e.g., "My App")
+
+6. Click "Generate"
+
+7. Copy the 16-character App Password (e.g., "abcd efgh ijkl mnop")
+
+Enter your Gmail address: your-email@gmail.com
+Enter your App Password: abcd efgh ijkl mnop
+
+Copy this code into your project:
+────────────────────────────────────────────────────────────
+import { EmailClient, defaultSubjects, createGmailConfig } from "composa";
+
+const gmailMailer = new EmailClient({
+    defaultLang: "fr",
+    transport: createGmailConfig(
+        "your-email@gmail.com",
+        "abcdefghijklmnop"
+    ),
+});
+
+// Send an email
+const result = await gmailMailer.sendMail({
+    to: "user@example.com",
+    subject: "Test Email",
+    html: "<h1>Hello from Composa!</h1>"
+});
+console.log("Email sent:", result);
+────────────────────────────────────────────────────────────
+
+SECURITY WARNING:
+The code above contains your email credentials in plain text.
+For production use, store credentials in environment variables:
+  - Create a .env file with EMAIL_USER and EMAIL_PASS
+  - Use process.env.EMAIL_USER and process.env.EMAIL_PASS
+  - Add .env to your .gitignore file
+
+Press Enter when you have copied the code above...
+
+Do you want to save this code to a file? (y/N): y
+Enter filename (e.g., gmail-setup.js): my-gmail-config.js
+Code saved to my-gmail-config.js
+
+Gmail Setup Complete!
+```
+
+### Security Features
+
+The CLI includes built-in security recommendations:
+
+- **Environment Variable Warnings**: Reminds you to use `.env` files in production
+- **Credential Protection**: Warns against committing credentials to version control
+- **Best Practices**: Provides guidance on secure credential management
 
 ## Custom Templates
 
