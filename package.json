@@ -1,9 +1,12 @@
 {
 	"name": "composa",
-	"version": "1.1.1",
+	"version": "1.2.0",
 	"description": "Compose beautiful multilingual emails with XHTML templates and Nodemailer",
 	"type": "module",
 	"main": "src/index.js",
+	"bin": {
+		"composa": "./bin/composa.mjs"
+	},
 	"exports": {
 		".": "./src/index.js",
 		"./templates": "./templates/"
@@ -14,6 +17,7 @@
 		"format": "prettier --write ."
 	},
 	"files": [
+		"bin/",
 		"src/",
 		"templates/",
 		"examples/",
@@ -63,17 +67,10 @@
 		"outlook",
 		"hotmail",
 		"yahoo",
-		"sendgrid",
-		"mailgun",
-		"ses",
-		"aws-ses",
-		"postmark",
-		"mailjet",
-		"sparkpost",
-		"brevo",
-		"sendinblue",
-		"mailtrap",
-		"ethereal",
+		"aol",
+		"gmx",
+		"zoho",
+		"icloud",
 		"dkim",
 		"esm",
 		"es-modules",
