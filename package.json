@@ -4,17 +4,23 @@
 	"description": "Compose beautiful multilingual emails with XHTML templates and Nodemailer",
 	"type": "module",
 	"main": "src/index.js",
+	"types": "src/types.d.ts",
 	"bin": {
 		"composa": "./bin/composa.mjs"
 	},
 	"exports": {
-		".": "./src/index.js",
+		".": {
+			"import": "./src/index.js",
+			"types": "./src/types.d.ts"
+		},
 		"./templates": "./templates/"
 	},
 	"scripts": {
 		"example": "node examples/basic/01_mock_transporter.js",
 		"example-advanced": "node examples/advanced/02_bulk_sending.js",
-		"format": "prettier --write ."
+		"example-typescript": "ts-node examples/typescript/01_basic_usage.ts",
+		"format": "prettier --write .",
+		"type-check": "tsc --noEmit"
 	},
 	"files": [
 		"bin/",
@@ -111,6 +117,9 @@
 		"url": "https://github.com/Pupariaa/Composa/issues"
 	},
 	"devDependencies": {
-		"prettier": "^3.6.2"
+		"prettier": "^3.6.2",
+		"typescript": "^5.0.0",
+		"@types/node": "^20.0.0",
+		"ts-node": "^10.9.0"
 	}
 }
