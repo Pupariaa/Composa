@@ -1,5 +1,64 @@
 # Changelog
 
+## 1.2.0 — 2025-09-11
+
+### CLI Major Overhaul
+
+Complete redesign and enhancement of the Composa CLI for a more professional and user-friendly experience.
+
+#### Added
+
+- **Interactive CLI Setup**: New `npx composa <provider>` command for guided email provider configuration
+- **Extended Provider Support**: Added support for AOL, GMX, Zoho, and iCloud email providers
+- **Security Warnings**: Built-in security recommendations for production deployments
+- **Code Generation**: Automatic generation of ready-to-use code snippets with proper imports
+- **File Export**: Option to save generated configuration code to files
+
+#### Changed
+
+- **CLI Executable**: Renamed from `composa-test` to `composa` for consistency
+- **File Extension**: Updated CLI script from `.js` to `.mjs` for modern ESM support
+- **Professional Design**: Removed all emojis for a cleaner, more professional appearance
+- **Unified Branding**: All text and instructions now use consistent "composa" naming
+- **Enhanced User Experience**: More intuitive and clear setup instructions
+
+#### Removed
+
+- **Business API Providers**: Removed SendGrid, Mailgun, SES, Postmark, Brevo, Mailjet, SparkPost, Mailtrap, and Ethereal
+- **Outlook Support**: Temporarily removed due to Microsoft's SMTP authentication restrictions
+- **OAuth2 Complexity**: Simplified Gmail setup to focus on App Passwords instead of OAuth2
+
+#### Security Improvements
+
+- **Environment Variable Recommendations**: All setup functions now include security warnings
+- **Best Practices Guidance**: Clear instructions for using `.env` files and `.gitignore`
+- **Credential Protection**: Warnings about not committing credentials to version control
+
+#### CLI Commands
+
+```bash
+# Setup email providers
+npx composa gmail     # Gmail with App Passwords
+npx composa yahoo     # Yahoo with App Passwords  
+npx composa aol       # AOL with App Passwords
+npx composa gmx       # GMX with App Passwords
+npx composa zoho      # Zoho with App Passwords
+npx composa icloud    # iCloud with App Passwords
+
+# Utility commands
+npx composa list      # List all available providers
+npx composa help      # Show help information
+```
+
+#### Provider-Specific Features
+
+- **Gmail**: Streamlined App Password setup with 2FA guidance
+- **Yahoo**: App Password setup with account restriction warnings
+- **AOL**: Complete App Password configuration flow
+- **GMX**: Flexible setup supporting both regular passwords and App Passwords
+- **Zoho**: Professional email setup with IMAP access requirements
+- **iCloud**: Apple ecosystem integration with App Password setup
+
 ## 1.0.0 — 2025-08-31
 
 First stable release of Composa: a modern, ESM-first toolkit to compose and send beautiful, multilingual XHTML emails with Nodemailer.
@@ -8,7 +67,7 @@ First stable release of Composa: a modern, ESM-first toolkit to compose and send
 
 - EmailClient: send templated or raw emails, bulk sending, retries.
 - Multilingual XHTML templates: French and English out of the box.
-- Provider presets: one-liners for Gmail, Outlook, Yahoo, SendGrid, Mailgun, Ethereal.
+- Provider presets: one-liners for Gmail, Yahoo, AOL, GMX, Zoho, iCloud.
 - Simple subject registry with variable interpolation.
 - Lightweight template engine with caching and language fallbacks.
 - Ready-to-run examples and clear quick-start.
@@ -18,7 +77,7 @@ First stable release of Composa: a modern, ESM-first toolkit to compose and send
 - Core exports (`src/index.js`):
     - `EmailClient`, `TemplateEngine`, `defaultSubjects`.
     - Provider helpers: `emailProviders`, `getProvider`, `createProviderConfig`, `listProviders`, `getProviderDocs`, `getProviderNotes`, `getProviderSetup`.
-    - Shortcuts: `createGmailConfig`, `createOutlookConfig`, `createYahooConfig`, `createSendGridConfig`, `createMailgunConfig`, `createTestConfig`.
+    - Shortcuts: `createGmailConfig`, `createYahooConfig`, `createAOLConfig`, `createGMXConfig`, `createZohoConfig`, `createiCloudConfig`.
 - Email client (`src/email-client.js`):
     - `send`, `sendBulk`, `sendWithRetry`, `sendTemplate`.
     - Diagnostics: `verifyConnection`, `testConfiguration`.
