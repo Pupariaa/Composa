@@ -21,16 +21,6 @@ export const emailProviders = {
 		notes: "Use App Password instead of regular password. Enable 2FA first.",
 	},
 
-	// Microsoft Outlook/Hotmail
-	outlook: {
-		host: "smtp-mail.outlook.com",
-		port: 587,
-		secure: false,
-		requiresAuth: true,
-		authType: "login",
-		docs: "https://support.microsoft.com/en-us/office/pop-imap-and-smtp-settings-8361e398-8af4-4e97-b147-6c6c4ac95353",
-		notes: "Works with Outlook.com, Hotmail.com, Live.com accounts",
-	},
 
 	// Yahoo Mail
 	yahoo: {
@@ -43,106 +33,50 @@ export const emailProviders = {
 		notes: "Requires App Password. Enable 2-step verification first.",
 	},
 
-	// SendGrid
-	sendgrid: {
-		host: "smtp.sendgrid.net",
+	// AOL Mail
+	aol: {
+		host: "smtp.aol.com",
 		port: 587,
 		secure: false,
 		requiresAuth: true,
 		authType: "login",
-		username: "apikey",
-		docs: "https://docs.sendgrid.com/for-developers/sending-email/integrating-with-the-smtp-api",
-		notes: 'Username is always "apikey", password is your SendGrid API key',
+		docs: "https://help.aol.com/articles/how-to-set-up-aol-mail-in-another-mail-client",
+		notes: "Requires App Password. Enable 2-step verification first.",
 	},
 
-	// Mailgun
-	mailgun: {
-		host: "smtp.mailgun.org",
+	// GMX Mail
+	gmx: {
+		host: "mail.gmx.com",
 		port: 587,
 		secure: false,
 		requiresAuth: true,
 		authType: "login",
-		docs: "https://documentation.mailgun.com/en/latest/user_manual.html#sending-via-smtp",
-		notes: "Username format: postmaster@your-domain.mailgun.org",
+		docs: "https://support.gmx.com/pages/viewpage.action?pageId=18866728",
+		notes: "Use your GMX email and password. May require App Password for 2FA accounts.",
 	},
 
-	// Amazon SES
-	ses: {
-		host: "email-smtp.us-east-1.amazonaws.com",
+	// Zoho Mail
+	zoho: {
+		host: "smtp.zoho.com",
 		port: 587,
 		secure: false,
 		requiresAuth: true,
 		authType: "login",
-		docs: "https://docs.aws.amazon.com/ses/latest/dg/smtp-credentials.html",
-		notes: "Requires SMTP credentials (different from AWS access keys). Region-specific host.",
+		docs: "https://www.zoho.com/mail/help/zoho-mail-smtp-configuration.html",
+		notes: "Use your Zoho email and password. Enable IMAP access in settings.",
 	},
 
-	// Postmark
-	postmark: {
-		host: "smtp.postmarkapp.com",
+	// Apple iCloud Mail
+	icloud: {
+		host: "smtp.mail.me.com",
 		port: 587,
 		secure: false,
 		requiresAuth: true,
 		authType: "login",
-		docs: "https://postmarkapp.com/developer/user-guide/send-email-with-smtp",
-		notes: "Username is your Server Token, password is also your Server Token",
+		docs: "https://support.apple.com/en-us/102654",
+		notes: "Requires App Password. Enable 2FA first on your Apple ID.",
 	},
 
-	// Brevo (formerly Sendinblue)
-	brevo: {
-		host: "smtp-relay.brevo.com",
-		port: 587,
-		secure: false,
-		requiresAuth: true,
-		authType: "login",
-		docs: "https://developers.brevo.com/docs/send-a-transactional-email",
-		notes: "Use your Brevo login email and SMTP key as password",
-	},
-
-	// Mailjet
-	mailjet: {
-		host: "in-v3.mailjet.com",
-		port: 587,
-		secure: false,
-		requiresAuth: true,
-		authType: "login",
-		docs: "https://dev.mailjet.com/smtp/setup-guide/",
-		notes: "Username is API Key, password is Secret Key",
-	},
-
-	// SparkPost
-	sparkpost: {
-		host: "smtp.sparkpostmail.com",
-		port: 587,
-		secure: false,
-		requiresAuth: true,
-		authType: "login",
-		username: "SMTP_Injection",
-		docs: "https://developers.sparkpost.com/api/smtp/",
-		notes: 'Username is always "SMTP_Injection", password is your API key',
-	},
-
-	// Mailtrap (for testing)
-	mailtrap: {
-		host: "smtp.mailtrap.io",
-		port: 2525,
-		secure: false,
-		requiresAuth: true,
-		authType: "login",
-		docs: "https://mailtrap.io/blog/smtp-service/",
-		notes: "Development/testing only. Emails are caught, not delivered.",
-	},
-
-	// Ethereal (for testing)
-	ethereal: {
-		host: "smtp.ethereal.email",
-		port: 587,
-		secure: false,
-		requiresAuth: true,
-		authType: "login",
-		docs: "https://ethereal.email/",
-		notes: "Testing service. Generate credentials at https://ethereal.email/",
-	},
 };
 
 /**
@@ -281,15 +215,6 @@ export function createGmailConfig(email, appPassword) {
 	return createProviderConfig("gmail", { user: email, pass: appPassword });
 }
 
-/**
- * Create Outlook configuration
- * @param {string} email - Your Outlook/Hotmail address
- * @param {string} password - Your account password or App Password
- * @returns {object} Outlook transport configuration
- */
-export function createOutlookConfig(email, password) {
-	return createProviderConfig("outlook", { user: email, pass: password });
-}
 
 /**
  * Create Yahoo configuration - requires App Password
@@ -302,35 +227,43 @@ export function createYahooConfig(email, appPassword) {
 }
 
 /**
- * Create SendGrid configuration
- * @param {string} apiKey - Your SendGrid API key
- * @returns {object} SendGrid transport configuration
+ * Create AOL configuration
+ * @param {string} email - Your AOL email address
+ * @param {string} appPassword - Your AOL App Password
+ * @returns {object} AOL transport configuration
  */
-export function createSendGridConfig(apiKey) {
-	return createProviderConfig("sendgrid", { user: "apikey", pass: apiKey });
+export function createAOLConfig(email, appPassword) {
+	return createProviderConfig("aol", { user: email, pass: appPassword });
 }
 
 /**
- * Create Mailgun configuration
- * @param {string} domain - Your Mailgun domain (e.g., 'your-domain.mailgun.org')
- * @param {string} apiKey - Your Mailgun API key
- * @returns {object} Mailgun transport configuration
+ * Create GMX configuration
+ * @param {string} email - Your GMX email address
+ * @param {string} password - Your GMX password or App Password
+ * @returns {object} GMX transport configuration
  */
-export function createMailgunConfig(domain, apiKey) {
-	return createProviderConfig("mailgun", {
-		user: `postmaster@${domain}`,
-		pass: apiKey,
-	});
+export function createGMXConfig(email, password) {
+	return createProviderConfig("gmx", { user: email, pass: password });
 }
 
 /**
- * Create testing configuration with Ethereal (safe for development)
- * @param {string} user - Ethereal username (get from https://ethereal.email)
- * @param {string} pass - Ethereal password
- * @returns {object} Ethereal transport configuration
+ * Create Zoho configuration
+ * @param {string} email - Your Zoho email address
+ * @param {string} password - Your Zoho password
+ * @returns {object} Zoho transport configuration
  */
-export function createTestConfig(user, pass) {
-	return createProviderConfig("ethereal", { user, pass });
+export function createZohoConfig(email, password) {
+	return createProviderConfig("zoho", { user: email, pass: password });
+}
+
+/**
+ * Create iCloud configuration
+ * @param {string} email - Your iCloud email address
+ * @param {string} appPassword - Your iCloud App Password
+ * @returns {object} iCloud transport configuration
+ */
+export function createiCloudConfig(email, appPassword) {
+	return createProviderConfig("icloud", { user: email, pass: appPassword });
 }
 
 /**
@@ -344,7 +277,7 @@ export function getProviderSetup(providerName) {
 		provider: providerName,
 		docs: provider.docs,
 		notes: provider.notes,
-		requiresAppPassword: ["gmail", "yahoo"].includes(
+		requiresAppPassword: ["gmail", "yahoo", "aol", "zoho", "icloud"].includes(
 			providerName.toLowerCase(),
 		),
 		setupSteps: getSetupSteps(providerName.toLowerCase()),
@@ -359,26 +292,36 @@ function getSetupSteps(providerName) {
 			"3. Generate an 'App Password' for 'Mail'",
 			"4. Use your Gmail address and the App Password (not your regular password)",
 		],
-		outlook: [
-			"1. Use your Outlook.com, Hotmail.com, or Live.com email and password",
-			"2. If you have 2FA enabled, you may need an App Password",
-			"3. Go to Security settings > Advanced security options > App passwords",
-		],
 		yahoo: [
 			"1. Enable 2-Step Verification in Yahoo Account Security",
 			"2. Go to Account Info > Account Security > Generate app password",
 			"3. Select 'Other app' and name it (e.g., 'My App')",
 			"4. Use your Yahoo email and the generated App Password",
 		],
-		sendgrid: [
-			"1. Sign up at SendGrid.com",
-			"2. Create an API Key in Settings > API Keys",
-			"3. Use 'apikey' as username and your API key as password",
+		aol: [
+			"1. Enable 2-Step Verification on your AOL account",
+			"2. Go to Account Security > Two-step verification",
+			"3. Generate an App Password for your application",
+			"4. Use your AOL email and the App Password",
 		],
-		mailgun: [
-			"1. Sign up at Mailgun.com and verify your domain",
-			"2. Get your API key from the dashboard",
-			"3. Use 'postmaster@your-domain.mailgun.org' as username",
+		gmx: [
+			"1. Go to GMX Account > Security Options",
+			"2. Enable Two-factor authentication if available",
+			"3. Generate Application-specific passwords if 2FA is enabled",
+			"4. Use your GMX email and password (or App Password if 2FA enabled)",
+		],
+		zoho: [
+			"1. Enable 2-Factor Authentication on your Zoho account",
+			"2. Go to Security > Two-Factor Authentication",
+			"3. Generate an App Password for your application",
+			"4. Ensure IMAP access is enabled in Mail settings",
+			"5. Use your Zoho email and the App Password",
+		],
+		icloud: [
+			"1. Enable 2-Factor Authentication on your Apple ID",
+			"2. Go to Apple ID settings > Sign-In and Security",
+			"3. Generate an App-Specific Password",
+			"4. Use your iCloud email and the App Password",
 		],
 	};
 
